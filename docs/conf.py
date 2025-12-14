@@ -7,8 +7,8 @@ from datetime import datetime
 # Insert the parent directory into the path
 # sys.path.insert(0, os.path.abspath("../your_source_code"))
 
-project = "your-package-name"
-author = "your-name"
+project = "first-basemap"
+author = "Ben Welsh"
 
 year = datetime.now().year
 copyright = f"{year}"
