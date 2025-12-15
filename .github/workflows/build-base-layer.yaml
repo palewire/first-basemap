@@ -1,0 +1,16 @@
+name: Build base layer
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    uses: ./.github/workflows/reusable-planetiler-builder.yaml
+    with:
+      product: 'base'
+    secrets: inherit
