@@ -1,1 +1,1 @@
-# GitHub Actions
+# Create a repository with a GitHub Actions workflow

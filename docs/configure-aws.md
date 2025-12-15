@@ -1,4 +1,4 @@
-# Configure a self-hosted GitHub Actions runner on Amazon EC2
+# Configure Amazon Web Services for GitHub Actions
 
 GitHub Actions can do a lot, but sometimes it's simply not enough. The free service has limits on disk space, processing units and how long jobs can run.
 

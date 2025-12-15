@@ -1,1 +1,1 @@
-# Create map with Maplibre
+# Create an interactive map with Maplibre
