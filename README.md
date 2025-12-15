@@ -7,4 +7,3 @@ Create a fast and free interactive map of the whole world using the OpenStreetMa
 * [Tutorial](https://palewi.re/docs/first-basemap/)
 * [How to contribute](https://github.com/palewire/first-basemap/blob/main/CONTRIBUTING.md)
 * [Other classes in this series](https://palewi.re/docs/)
-
