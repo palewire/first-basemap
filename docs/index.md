@@ -18,7 +18,14 @@ This course is free. Previous experience working with Amazon Web Services and Gi
 :name: mastertoc
 :numbered:
 
-ec2
+what-we-will-make
+create-repo
+configure-aws
+create-actions
+run-actions
+create-map
+customize-map
+deploy-map
 ```
 
 ## About this class
