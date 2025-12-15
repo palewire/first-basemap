@@ -21,7 +21,7 @@ env:
   # Your EC2 runner role **and** instance profile
   EC2_ROLE_NAME: GitHub-EC2-Runner-Role
 
-  # EC2 settings
+  # EC2 settings for the GitHub Actions runners
   AMI_ID: ami-0c7217cdde317cfec
   INSTANCE_TYPE: r5d.24xlarge
   VOLUME_SIZE: 1000
@@ -29,7 +29,7 @@ env:
   SG_ID: sg-0f07c5f76997741fa
   AAIID: a208509
 
-  # graphics.thomsonreuters.com S3 bucket
+  # Public S3 bucket for hosting the PMTiles
   AWS_ACCESS_KEY_ID: ${{ secrets.PUBLIC_AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.PUBLIC_AWS_SECRET_ACCESS_KEY }}
   AWS_REGION_NAME: ${{ secrets.PUBLIC_AWS_DEFAULT_REGION }}
@@ -282,7 +282,7 @@ jobs:
         working-directory: ${{ env.WORK_DIR }}
         run: |
           # Set upload path
-          S3_PATH="s3://${AWS_S3_BUCKET_NAME}/reuters-protomaps/${OUTPUT_FILE}"
+          S3_PATH="s3://${AWS_S3_BUCKET_NAME}/first-basemap/${OUTPUT_FILE}"
           echo "Uploading to: $S3_PATH"
 
           # Run upload of the output file
