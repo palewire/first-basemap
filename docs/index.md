@@ -22,7 +22,7 @@ This course is free. Previous experience working with Amazon Web Services and Gi
 :numbered:
 
 what-you-will-make
-create-repo
+what-are-actions
 configure-aws
 create-actions
 run-actions
