@@ -4,7 +4,7 @@ Create a fast and free interactive map of the whole world using the [OpenStreetM
 
 ## What you will learn
 
-* How to create a GitHub repository that can run cloud-computing tasks using [GitHub Actions](https://docs.github.com/en/actions).
+* How to create a [GitHub](https://github.com/) repository that can run cloud-computing tasks using [GitHub Actions](https://docs.github.com/en/actions).
 * How to configure an [Amazon Web Services](https://aws.amazon.com/) account to allow GitHub Actions to use large-scale, long-running servers.
 * How to configure [Planetiler](https://github.com/onthegomap/planetiler) to download [OpenStreetMap](https://www.openstreetmap.org/) data and convert it into map tiles stored in a single [PMTiles](https://github.com/protomaps/PMTiles) file.
 * How to create a simple web page that displays the map using [MapLibre GL JS](https://maplibre.org/projects/maplibre-gl-js/).
@@ -13,7 +13,6 @@ Create a fast and free interactive map of the whole world using the [OpenStreetM
 ## Who can take it
 
 This course is free. Previous experience working with Amazon Web Services and GitHub Actions will be useful, but anyone with a good attitude is qualified to take the class.
-
 
 ## Table of contents
 
@@ -36,4 +35,4 @@ deploy-map
 
 [Ben Welsh](https://palewi.re/who-is-ben-welsh/) prepared this guide in December 2025. GitHub’s Copilot, an AI-powered text generator, provided some assistance. The materials are available as free and [open source on GitHub](https://github.com/palewire/first-basemap).
 
-Some portions are borrowed from ["Go big with GitHub Actions"](https://palewi.re/go-big-with-github-actions/), a course that [Ben Welsh](https://palewi.re/who-is-ben-welsh/), [Iris Lee](https://www.irisslee.com/) and [Dana Chiueh](https://dana.computer/) created for a training session at the National Institute for Computer-Assisted Reporting’s 2025 conference in Minneapolis.
+Some portions are borrowed from ["Go big with GitHub Actions"](https://palewi.re/go-big-with-github-actions/), a course that [Ben Welsh](https://palewi.re/who-is-ben-welsh/), [Iris Lee](https://www.irisslee.com/) and [Dana Chiueh](https://dana.computer/) created for a training session at the National Institute for Computer-Assisted Reporting’s March 2025 conference in Minneapolis.
