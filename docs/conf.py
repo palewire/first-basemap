@@ -7,6 +7,7 @@ year = datetime.now().year
 copyright = f"{year} palewire"
 
 templates_path = ["_templates"]
+html_static_path = ["_static"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 source_suffix = ".md"
 master_doc = "index"

@@ -21,7 +21,7 @@ This course is free. Previous experience working with Amazon Web Services and Gi
 :name: mastertoc
 :numbered:
 
-what-we-will-make
+what-you-will-make
 create-repo
 configure-aws
 create-actions
