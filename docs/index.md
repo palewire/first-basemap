@@ -23,6 +23,7 @@ This course is free. Previous experience working with Amazon Web Services and Gi
 
 what-you-will-make
 what-are-actions
+what-is-yaml
 configure-aws
 create-actions
 run-actions

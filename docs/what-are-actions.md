@@ -1,4 +1,4 @@
-# Introducing GitHub Actions
+# Introducing Actions
 
 Actions is an online tool for scheduling, running, and monitoring computer programming scripts in a far-off data center without human intervention. It is one of the commercial services offered by [GitHub](https://en.wikipedia.org/wiki/GitHub), Microsoft’s multi-faceted software development site.
 
