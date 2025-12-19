@@ -35,3 +35,5 @@ deploy-map
 ## About this class
 
 [Ben Welsh](https://palewi.re/who-is-ben-welsh/) prepared this guide in December 2025. GitHub’s Copilot, an AI-powered text generator, provided some assistance. The materials are available as free and [open source on GitHub](https://github.com/palewire/first-basemap).
+
+Some portions are borrowed from ["Go big with GitHub Actions"](https://palewi.re/go-big-with-github-actions/), a course that [Ben Welsh](https://palewi.re/who-is-ben-welsh/), [Iris Lee](https://www.irisslee.com/) and [Dana Chiueh](https://dana.computer/) created for a training session at the National Institute for Computer-Assisted Reporting’s 2025 conference in Minneapolis.
