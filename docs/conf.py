@@ -1,6 +1,5 @@
 """Configuration file for the Sphinx documentation builder."""
 
-from typing import Any
 from datetime import datetime
 
 project = "First Basemap"
@@ -17,7 +16,7 @@ pygments_style = "sphinx"
 
 html_sidebars = {
     "**": [
-        'about.html',
+        "about.html",
         "navigation.html",
     ]
 }
