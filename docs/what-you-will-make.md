@@ -50,7 +50,7 @@ Here's an example of the basemap that [Reuters](https://www.reuters.com/) develo
         map.on('wheel', () => { userInteracting = true; });
 
         spinGlobe();
-        setInterval(spinGlobe, 10);
+        setInterval(spinGlobe, 1000);
     });
 </script>
 ```
