@@ -20,11 +20,11 @@ on:
       ec2_image_id:
         description: 'The AMI ID to use'
         type: string
-        default: ami-0c7217cdde317cfec
+        default: ami-0e86e20dae9224db8  # Ubuntu 22.04 LTS
       ec2_instance_type:
         description: 'The EC2 instance type to use'
         type: string
-        default: r5d.24xlarge
+        default: r5d.8xlarge  # 32 vCPUs - fits within limit of default AWS account vCPU quota
       ec2_volume_size:
         description: 'The EC2 volume size in GB'
         type: number
