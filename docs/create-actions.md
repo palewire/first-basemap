@@ -10,13 +10,13 @@ Once you are logged into GitHub, create a new repository by clicking on the "New
 
 Now, fill in a name for your new repository. A good example would be `first-basemap`. Make sure your repository is public - this will allow us to access GitHub pages later on in the class. Click on the "Create repository" button at the bottom of the form.
 
-![signed in](_static/getting-started-1.png)
+![GitHub repository creation form showing the repository name field and public/private visibility options](_static/create-repo.png)
 
 ## Create a simple Action
 
 Navigate to your repository's homepage in the browser. Click on the "Actions" tab, which will take you to a page where you can create, manage and monitor your Actions.
 
-![first action](_static/first-action-1.png)
+![GitHub Actions tab in the repository navigation menu](_static/actions-tab.png)
 
 Scroll down the page. You will see that GitHub offers a menu of templates for common automation tasks. For our first Action, we will click "set up a workflow yourself" link near the top of the page.
 
@@ -24,13 +24,13 @@ Scroll down the page. You will see that GitHub offers a menu of templates for co
 The terms action, workflow, job and task and yaml are often used interchangeably by GitHub Actions users to refer to these configuration files.
 :::
 
-![first workflow](_static/first-action-2.png)
+![GitHub Actions setup page showing workflow templates and the "set up a workflow yourself" link](_static/actions-create-link.png)
 
 This will open up an editor inside of your browser, which is another one of the features offered by GitHub.
 
 Let's start by renaming the file to `simple.yaml` in the box above the editor. This will be the name of your first Action file.
 
-![simple workflow](_static/first-action-3.png)
+![GitHub's in-browser editor showing the filename field where "simple.yaml" is being entered](_static/actions-rename.png)
 
 :::{admonition} Note
 We will be editing our files inside of GitHub using our browser in this manner throughout the tutorial. If you're already a GitHub expert and you'd prefer to clone your repo and use a code editor instead, please feel free to do so. Just make sure to push your changes back to GitHub as you go.
@@ -46,7 +46,7 @@ name: First Action
 
 You will notice a red squiggly underline beneath your code. This means that GitHub sees something wrong with your workflow. When you hover over the squiggly line, a hint will appear. Here we see it says "Missing required root key `on`."
 
-![title](_static/first-action-4.png)
+![YAML editor showing a red squiggly underline with an error tooltip indicating "Missing required root key 'on'"](_static/actions-first-line.png)
 
 Let's take the hint add another line under `name`.
 
@@ -71,11 +71,11 @@ jobs:
     name: Say Hello
     runs-on: ubuntu-latest
     steps:
-      name: Hello world
-      run: echo "Hello world"
+      - name: Hello world
+        run: echo "Hello world"
 ```
 
-Be mindful of indentation and uneven syntax. The red squiggly marks will give you hints is there's anything wrong with your file.
+Be mindful of indentation and uneven syntax. The red squiggly marks will give you hints if there's anything wrong with your file.
 
 Your workflow file should now look something like this:
 
@@ -155,22 +155,31 @@ jobs:
 
 Now save you file to the repository by clicking on the green "Commit changes" button in the top-right corner.
 
-![commit](_static/first-action-10.png)
+![Green "Commit changes" button in the top-right corner of the GitHub editor](_static/actions-commit-button.png)
 
 In GitHub, all workflow files are saved under `.github > workflows` folder. Your first commit has created the folder and saved your first workflow for you. When you are ready to add more workflows, you should add them to this folder as well.
 
-![commit](_static/first-action-8.png)
+![GitHub repository file tree showing the .github/workflows directory containing workflow files](_static/actions-file-tree.png)
 
 If you need to edit this first file again, simply click into the file and click the pencil icon on the top right corner.
 
-![editor](_static/first-action-13.png)
-
+![Pencil icon button in the top-right corner of a GitHub file view for editing the file](_static/actions-pencil-icon.png)
 ## Run your action
 
 Go back to your "Actions" tab in the repository. You will see that your workflow is now available in the left rail. Click on its name there. Then go to the right corner where you will see a dropdown called "Run workflow." Click the second, green "Run workflow" button it presents in a dropdown to kickstart your first job.
 
-![first-commit](_static/first-action-11.png)
+![GitHub Actions workflow page showing the "Run workflow" dropdown button in the top-right corner](_static/actions-run-workflow.png)
 
-Refresh your browser. Once your Action has been completed, you will see a green checkmark to the left. Clicking on the completed action will show you what job just ran. Click on the job and open up the steps within workflow to see the output.
+Refresh your browser. You will see that your job is now running. The yellow indicator shows that the job is in pending. Click on the job to see more details and follow its progress.
 
-![first-workflow](_static/first-action-12.png)
+![GitHub Actions workflow runs list showing a job in progress with a yellow pending indicator](_static/actions-run-list.png)
+
+When the job completes, the yellow indicator will turn into a green checkmark. If you click into the job's box in the flowchart diagram, you can see what happened during each step.
+
+![GitHub Actions workflow run details page showing the job flowchart with a green checkmark indicating successful completion](_static/actions-run-detail.png)
+
+Click on the step called "Hello world" to see the log output of our echo command.
+
+![GitHub Actions log output showing the "Hello world" step with the echo command result](_static/actions-run-log.png)
+
+Congratulations! You have created and run your first workflow. We didn't do much here, but the fundamentals you've learned are the foundation for all tasks automated using GitHub Actions.
