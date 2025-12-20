@@ -13,4 +13,7 @@ jobs:
     uses: ./.github/workflows/reusable-planetiler-builder.yaml
     with:
       product: 'base'
+      aws_region: us-east-1
+      aws_subnet_id: subnet-04b767d962c0efdff
+      aws_security_group_id: sg-0fe118aaf037afaa2
     secrets: inherit
