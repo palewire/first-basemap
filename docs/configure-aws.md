@@ -1,20 +1,24 @@
-# Configure Amazon Web Services for GitHub Actions
+# Scaling up with Amazon Web Services
 
 GitHub Actions can do a lot, but sometimes it's simply not enough. The free service has limits on disk space, processing units and how long jobs can run.
 
-If you want more horsepower, you will need to link it up with bigger servers.
+Our project is just such a case. Processing gigabytes of data to building a map of the entire world will easily exceed what GitHub supplies.
 
-[Amazon Web Services](https://en.wikipedia.org/wiki/Amazon_Web_Services) is a cloud platform that offers all forms of computing power. One way to get around GitHub's limitations is to assign Amazon's cloud servers, provided by a service known as EC2, to your GitHub Actions as self-hosted runners.
+When you need more horsepower, one solution is to link Actions up with more powerful hardware.
+
+## Introducing Amazon Web Services
+
+[Amazon Web Services](https://en.wikipedia.org/wiki/Amazon_Web_Services) is a cloud platform that offers almost every form of computing power for lease. It includes a service known as EC2, which will spin up servers of all shapes and sizes, which you can use to run jobs that exceed the limits of GitHub's resources.
 
 It's a great combination. You get the nearly limitless capacity of Amazon without losing the convenience of GitHub's Actions interface.
 
-We've used this technique to:
+In other circumstances, we've used this technique to:
 
 * Standardize hundreds of millions of responses to public opinion polls conducted by Reuters and Ipsos
 * Refine and republish [California's gigantic database](https://github.com/palewire/django-calaccess-downloads-website) of campaign-finance filings
 * Aggregate decades of climate data into global and regional averages
 
-Though, there is bad news here, you will have to pay for it. Jeff Bezos didn't get rich by giving things away.
+Though, there is bad news here. You will have to pay for it. Jeff Bezos didn't get rich by giving things away.
 
 The first step is to create an Amazon Web Services account, if you don't already have one. Go to [aws.amazon.com](https://aws.amazon.com/) and click the button that says "Create an AWS account" in the upper right corner.
 
