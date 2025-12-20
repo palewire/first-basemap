@@ -3,10 +3,6 @@ name: Build buildings layer
 on:
   workflow_dispatch:
 
-permissions:
-  id-token: write
-  contents: write
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

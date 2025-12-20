@@ -34,10 +34,6 @@ on:
         type: number
         default: 240
 
-permissions:
-  id-token: write
-  contents: write
-
 jobs:
   start-runner:
     name: Start self-hosted EC2 runner
