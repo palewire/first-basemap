@@ -63,8 +63,8 @@ Then open-source software changed the equation.
 
 The new [PMTiles](https://github.com/protomaps/PMTiles) file format allowed, for the first time, for the massive database needed to render a detailed map of the world to be stored and served efficiently from a single file.
 
-That meant that instead of needing a complex, fragile server setup to render maps, you could rely on an inexpensive static file service. And all it would take to escape the expensive mapping contract would be to convert the free-and-open [OpenStreetMap](https://www.openstreetmap.org/) data that powers many commercial maps.
+That meant that instead of needing a complex, fragile server setup to render maps, you could rely on an inexpensive static file service. Suddenly, all it took to escape an expensive mapping contract was be to convert the free-and-open [OpenStreetMap](https://www.openstreetmap.org/) data that powers many commercial maps to the free alternative format.
 
-This class will show you how to you can do just that by using an array of open-source tools and low-cost cloud-computing services. Once you're successful, the only ongoing cost will be hosting one file on [Amazon S3](https://aws.amazon.com/s3/) or a competitor, which can be done for just a few dollars per month.
+This class will show you how to you can do just that using open-source tools and low-cost cloud-computing services. Once you're done, your only ongoing cost will be hosting a single file on [Amazon S3](https://aws.amazon.com/s3/) or a competitor, which can be done for just a few dollars a month.
 
 It will take a lot of different tools to get the job done, but none of them are difficult to use and we'll proceed slowly, step-by-step. Ready?
