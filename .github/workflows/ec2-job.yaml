@@ -1,0 +1,18 @@
+name: "EC2 custom runner"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  pipeline:
+    uses: palewire/first-basemap/.github/workflows/reusable-ec2-job.yaml@main
+    secrets: inherit
+    with:
+      command: echo 'Hello world'
+      aws_region: us-east-1
+      aws_subnet_id: subnet-04b767d962c0efdff
+      aws_security_group_id: sg-0fe118aaf037afaa2
+      ec2_image_id: ami-0f37c4a1ba152af46
+      ec2_instance_type: m8g.xlarge
+      ec2_volume_size: 50
+      timeout_minutes: 4320

@@ -124,7 +124,7 @@ You can jump there directly by visiting [github.com/settings/tokens](https://git
 
 ![GitHub settings](_static/tokens-list.png)
 
-Click on the button that says "Generate new token=" and select the "classic" option.
+Click on the button that says "Generate new token" and select the "classic" option.
 
 ![GitHub settings](_static/tokens-dropdown.png)
 
@@ -158,7 +158,7 @@ There are a number of different ways to connect outside servers to Actions. We a
 
 ![GitHub settings](_static/self-hosted-action.png)
 
-I've worked through his documentation and created a template for your start with. It's available in this tutorial's repository as [reusable-ec2-job.yaml](https://github.com/palewire/go-big-with-github-actions/blob/main/.github/workflows/reusable-ec2-job.yaml).
+I've worked through his documentation and created a template for your start with. It's available in this tutorial's repository as [reusable-ec2-job.yaml](https://github.com/palewire/first-basemap/blob/main/.github/workflows/reusable-ec2-job.yaml).
 
 This form of workflow is what GitHub called a "composite" action. That means that other actions can call on it without having to reproduce all of its code. This is a great way to reduce redundancy when you doing the same thing in more than one workflow.
 
