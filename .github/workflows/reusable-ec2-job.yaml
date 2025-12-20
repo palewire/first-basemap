@@ -27,7 +27,7 @@ on:
         description: 'The EC2 volume size in GB'
         type: number
         default: 50
-      timeout-minutes:
+      timeout_minutes:
         description: 'The timeout in minutes for the job'
         type: number
 
