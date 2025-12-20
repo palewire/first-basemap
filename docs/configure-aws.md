@@ -175,6 +175,7 @@ on:
       aws_region:
         description: 'The AWS region to use'
         type: string
+        default: 'us-east-1'
       aws_subnet_id:
         description: 'The AWS subnet ID to use'
         type: string
@@ -187,7 +188,11 @@ on:
       ec2_instance_type:
         description: 'The EC2 instance type to use'
         type: string
-      timeout-minutes:
+      ec2_volume_size:
+        description: 'The EC2 volume size in GB'
+        type: number
+        default: 50
+      timeout_minutes:
         description: 'The timeout in minutes for the job'
         type: number
 
@@ -200,20 +205,21 @@ jobs:
       ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
     steps:
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.AWS_REGION }}
+          aws-region: ${{ inputs.aws_region }}
 
       - name: Start EC2 runner
         id: start-ec2-runner
-        uses: machulav/ec2-github-runner@v2
+        uses: machulav/ec2-github-runner@v2.4.2
         with:
           mode: start
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           ec2-image-id: ${{ inputs.ec2_image_id }}
           ec2-instance-type: ${{ inputs.ec2_instance_type }}
+          ec2-volume-size: ${{ inputs.ec2_volume_size }}
           subnet-id: ${{ inputs.aws_subnet_id }}
           security-group-id: ${{ inputs.aws_security_group_id }}
           pre-runner-script: |
@@ -221,16 +227,17 @@ jobs:
             sudo yum install docker -y && \
             sudo yum install git -y && \
             sudo yum install libicu -y && \
-            sudo systemctl enable docker
+            sudo systemctl enable docker && \
+            sudo systemctl start docker
 
   run:
     name: Run
     needs: start-runner
     runs-on: ${{ needs.start-runner.outputs.label }}
-    timeout-minutes: ${{ inputs.timeout-minutes }}
+    timeout-minutes: ${{ inputs.timeout_minutes }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run
         run: ${{ inputs.command }}
@@ -244,14 +251,14 @@ jobs:
     if: ${{ always() }}
     steps:
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ inputs.AWS_REGION }}
 
       - name: Stop EC2 runner
-        uses: machulav/ec2-github-runner@v2
+        uses: machulav/ec2-github-runner@v2.4.2
         with:
           mode: stop
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
@@ -283,6 +290,10 @@ We won't walk through every detail of what's happening in the file, but here's a
       ec2_instance_type:
         description: 'The EC2 instance type to use'
         type: string
+      ec2_volume_size:
+        description: 'The EC2 volume size in GB'
+        type: number
+        default: 50
       timeout_minutes:
         description: 'The timeout in minutes for the job'
         type: number
@@ -298,6 +309,8 @@ The `ec2_image_id` will expect the unique indentifier of the operating system th
 
 The `ec2_instance_type` expects you to specific the size of the server to start up. You can find the menu of available hardware [on the Amazon site](https://aws.amazon.com/ec2/instance-types/).
 
+The `ec2_volume_size` is how much disk space you want to allocate to the server, measured in gigabytes. The default is 50 GB, which should be sufficient for most tasks.
+
 The `timeout_minutes` option is how long you want to give the job to run before it times out.
 
 After that, the workflow is essentially a three step process. The first step is to use a traditional Actions server to connect with Amazon and fire up a new EC2 instance with your specificed configuration. This example assumes you are using a machine image based on Amazon Linux 2023. If you end up using an image on another operating system, you will need to change the `pre-runner-script` to install the dependencies necesary to communicate with GitHub and run Actions.
@@ -311,20 +324,21 @@ After that, the workflow is essentially a three step process. The first step is 
       ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
     steps:
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.AWS_REGION }}
+          aws-region: ${{ inputs.aws_region }}
 
       - name: Start EC2 runner
         id: start-ec2-runner
-        uses: machulav/ec2-github-runner@v2
+        uses: machulav/ec2-github-runner@v2.4.2
         with:
           mode: start
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           ec2-image-id: ${{ inputs.ec2_image_id }}
           ec2-instance-type: ${{ inputs.ec2_instance_type }}
+          ec2-volume-size: ${{ inputs.ec2_volume_size }}
           subnet-id: ${{ inputs.aws_subnet_id }}
           security-group-id: ${{ inputs.aws_security_group_id }}
           pre-runner-script: |
@@ -345,7 +359,7 @@ The second step is to run the command you want. But unlike the first, it will be
     timeout-minutes: ${{ inputs.timeout_minutes }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run
         run: ${{ inputs.command }}
@@ -365,14 +379,14 @@ And then third step is to shut down the server when you're finished. It will run
     if: ${{ always() }}
     steps:
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.AWS_REGION }}
+          aws-region: ${{ inputs.aws_region }}
 
       - name: Stop EC2 runner
-        uses: machulav/ec2-github-runner@v2
+        uses: machulav/ec2-github-runner@v2.4.2
         with:
           mode: stop
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
@@ -395,7 +409,7 @@ on:
 
 jobs:
   pipeline:
-    uses: palewire/go-big-with-github-actions/.github/workflows/reusable-ec2-job.yaml@main
+    uses: palewire/first-basemap/.github/workflows/reusable-ec2-job.yaml@main
     secrets: inherit
     with:
       command: echo 'Hello world'
@@ -404,6 +418,7 @@ jobs:
       aws_security_group_id: sg-0fe118aaf037afaa2
       ec2_image_id: ami-0f37c4a1ba152af46
       ec2_instance_type: m8g.xlarge
+      ec2_volume_size: 50
       timeout_minutes: 4320
 ```
 
