@@ -1,42 +1,32 @@
-name: Reusable Planetiler workflow
+name: Build Planetiler
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       product:
-        description: "The product we're building"
+        description: 'Product to build'
         required: true
-        type: string
-      aws_region:
-        description: 'The AWS region to use'
-        type: string
-        default: 'us-east-1'
-      aws_subnet_id:
-        description: 'The AWS subnet ID to use'
-        type: string
-      aws_security_group_id:
-        description: 'The AWS security group ID to use'
-        type: string
-      aws_s3_bucket_name:
-        description: 'S3 bucket for uploading tiles'
-        required: true
-        type: string
-      ec2_image_id:
-        description: 'The AMI ID to use'
-        type: string
-        default: ami-0e86e20dae9224db8  # Ubuntu 24.04 LTS
-      ec2_instance_type:
-        description: 'The EC2 instance type to use'
-        type: string
-        default: r5d.8xlarge  # 32 vCPUs - fits within limit of default AWS account vCPU quota
-      ec2_volume_size:
-        description: 'The EC2 volume size in GB'
-        type: number
-        default: 1000
-      timeout_minutes:
-        description: 'The timeout in minutes for the job'
-        type: number
-        default: 240
+        type: choice
+        options:
+          - base        # A basemap without buildings and with more aggressive simplification
+          - buildings  # A buildings-only layer with minimal simplification
+
+# Customize these values for your environment
+env:
+  # AWS Configuration
+  AWS_REGION: us-east-1
+  AWS_SUBNET_ID: subnet-04b767d962c0efdff
+  AWS_SECURITY_GROUP_ID: sg-0fe118aaf037afaa2
+  AWS_S3_BUCKET_NAME: first-basemap
+
+  # EC2 Configuration
+  EC2_IMAGE_ID: ami-0e86e20dae9224db8   # Ubuntu 24.04 LTS
+  EC2_INSTANCE_TYPE: r5d.8xlarge        # 32 vCPUs, 256 GB RAM, 2x600 GB NVMe SSD
+  EC2_VOLUME_SIZE: 1000                 # Root volume size in GB
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.product }}
+  cancel-in-progress: true
 
 jobs:
   start-runner:
@@ -51,7 +41,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.aws_region }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Start EC2 runner
         id: start-ec2-runner
@@ -59,11 +49,11 @@ jobs:
         with:
           mode: start
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          ec2-image-id: ${{ inputs.ec2_image_id }}
-          ec2-instance-type: ${{ inputs.ec2_instance_type }}
-          ec2-volume-size: ${{ inputs.ec2_volume_size }}
-          subnet-id: ${{ inputs.aws_subnet_id }}
-          security-group-id: ${{ inputs.aws_security_group_id }}
+          ec2-image-id: ${{ env.EC2_IMAGE_ID }}
+          ec2-instance-type: ${{ env.EC2_INSTANCE_TYPE }}
+          ec2-volume-size: ${{ env.EC2_VOLUME_SIZE }}
+          subnet-id: ${{ env.AWS_SUBNET_ID }}
+          security-group-id: ${{ env.AWS_SECURITY_GROUP_ID }}
           pre-runner-script: |
             # Update system
             sudo apt-get update -y
@@ -91,14 +81,14 @@ jobs:
     name: Generate tiles
     needs: start-runner
     runs-on: ${{ needs.start-runner.outputs.label }}
-    timeout-minutes: ${{ inputs.timeout_minutes }}
+    timeout-minutes: 240  # 4 hours
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.aws_region }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Configure parameters
         run: |
@@ -234,16 +224,16 @@ jobs:
 
       - name: Ensure S3 bucket exists
         run: |
-          BUCKET="${{ inputs.aws_s3_bucket_name }}"
+          BUCKET="${{ env.AWS_S3_BUCKET_NAME }}"
 
           if ! aws s3api head-bucket --bucket "$BUCKET" 2>/dev/null; then
             echo "Creating bucket $BUCKET..."
-            if [ "${{ inputs.aws_region }}" = "us-east-1" ]; then
+            if [ "${{ env.AWS_REGION }}" = "us-east-1" ]; then
               aws s3api create-bucket --bucket "$BUCKET"
             else
               aws s3api create-bucket \
                 --bucket "$BUCKET" \
-                --create-bucket-configuration LocationConstraint=${{ inputs.aws_region }}
+                --create-bucket-configuration LocationConstraint=${{ env.AWS_REGION }}
             fi
             echo "✓ Bucket created"
           else
@@ -295,7 +285,7 @@ jobs:
       - name: Upload to S3 bucket
         working-directory: /mnt/planetiler
         run: |
-          S3_PATH="s3://${{ inputs.aws_s3_bucket_name }}/${OUTPUT_FILE}"
+          S3_PATH="s3://${{ env.AWS_S3_BUCKET_NAME }}/${OUTPUT_FILE}"
           echo "Uploading to: $S3_PATH"
 
           # Upload with metadata and caching headers, which will tell CDNs to cache for 1 day
@@ -306,7 +296,7 @@ jobs:
             --no-progress
 
           echo "✓ Upload complete!"
-          echo "Public URL: https://${{ inputs.aws_s3_bucket_name }}.s3.amazonaws.com/${OUTPUT_FILE}"
+          echo "Public URL: https://${{ env.AWS_S3_BUCKET_NAME }}.s3.amazonaws.com/${OUTPUT_FILE}"
 
   stop-runner:
     name: Stop self-hosted EC2 runner
@@ -321,7 +311,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.aws_region }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Stop EC2 runner
         uses: machulav/ec2-github-runner@v2.4.2
