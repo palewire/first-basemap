@@ -131,7 +131,6 @@ jobs:
           echo "✓ Planetiler downloaded successfully"
 
       - name: Configure simplification parameters
-        working-directory: ${{ env.WORK_DIR }}
         run: |
           # Set simplification parameters based on selected profile
           case "${{ inputs.product }}" in
@@ -168,7 +167,6 @@ jobs:
           echo "================================="
 
       - name: Configure zoom levels
-        working-directory: ${{ env.WORK_DIR }}
         run: |
           # Set the zoom levels based on the product
           case "${{ inputs.product }}" in
@@ -271,7 +269,7 @@ jobs:
       #   working-directory: ${{ env.WORK_DIR }}
       #   run: |
       #     # Set upload path
-      #     S3_PATH="s3://${AWS_S3_BUCKET_NAME}/first-basemap/${OUTPUT_FILE}"
+      #     S3_PATH="s3://${AWS_S3_BUCKET_NAME}/${OUTPUT_FILE}"
       #     echo "Uploading to: $S3_PATH"
 
       #     # Run upload of the output file
