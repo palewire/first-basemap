@@ -145,10 +145,9 @@ jobs:
           echo "MIN_FEATURE_SIZE=$MIN_FEATURE_SIZE" >> $GITHUB_ENV
           echo "MIN_FEATURE_SIZE_MAX_ZOOM=$MIN_FEATURE_SIZE_MAX_ZOOM" >> $GITHUB_ENV
 
-          # Display selected parameters
+          # Display simplification parameters
           echo ""
           echo "=== Simplification Parameters ==="
-          echo "Product: ${{ inputs.product }}"
           echo "Simplify tolerance: $SIMPLIFY_TOLERANCE"
           echo "Simplify tolerance at max zoom: $SIMPLIFY_TOLERANCE_MAX_ZOOM"
           echo "Min feature size: $MIN_FEATURE_SIZE"
