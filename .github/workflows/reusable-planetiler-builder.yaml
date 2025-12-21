@@ -107,7 +107,6 @@ jobs:
     needs: start-runner
     runs-on: ${{ needs.start-runner.outputs.label }}
     timeout-minutes: ${{ inputs.timeout_minutes }}
-
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
@@ -115,7 +114,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ inputs.aws_region }}
-
 
       - name: Configure parameters
         run: |
@@ -182,21 +180,8 @@ jobs:
           echo "Max zoom: $MAX_ZOOM"
           echo "===================="
 
-      - name: Setup working directory
-        run: |
-          # Use NVMe instance storage for best performance
-          if [ -d "/mnt/planetiler" ]; then
-            export WORK_DIR="/mnt/planetiler"
-          else
-            export WORK_DIR="$HOME/planetiler"
-            mkdir -p $WORK_DIR
-          fi
-
-          echo "Using working directory: $WORK_DIR"
-          echo "WORK_DIR=$WORK_DIR" >> $GITHUB_ENV
-
       - name: Download Planetiler
-        working-directory: ${{ env.WORK_DIR }}
+        working-directory: /mnt/planetiler
         run: |
           echo "Downloading latest Planetiler..."
           LATEST_URL=$(curl -s https://api.github.com/repos/onthegomap/planetiler/releases/latest \
@@ -210,7 +195,7 @@ jobs:
           echo "✓ Planetiler downloaded successfully"
 
       - name: Generate PMTiles file
-        working-directory: ${{ env.WORK_DIR }}
+        working-directory: /mnt/planetiler
         run: |
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
           OUTPUT_FILE="planet-${TIMESTAMP}-${{ inputs.product }}.pmtiles"
@@ -343,7 +328,7 @@ jobs:
 
       - name: Upload to S3 bucket
         if: env.GENERATION_SUCCESS == 'true'
-        working-directory: ${{ env.WORK_DIR }}
+        working-directory: /mnt/planetiler
         run: |
           S3_PATH="s3://${{ inputs.aws_s3_bucket_name }}/${OUTPUT_FILE}"
           echo "Uploading to: $S3_PATH"
