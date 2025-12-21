@@ -183,10 +183,13 @@ jobs:
         working-directory: /mnt/planetiler
         run: |
           echo "Downloading latest Planetiler..."
+
+          # Scrape latest release download URL from GitHub API
           LATEST_URL=$(curl -s https://api.github.com/repos/onthegomap/planetiler/releases/latest \
             | grep browser_download_url | head -1 | grep -E "planetiler.jar" | cut -d '"' -f 4)
-
           echo "Download URL: $LATEST_URL"
+
+          # Download Planetiler JAR
           curl -L -o planetiler.jar "$LATEST_URL"
 
           # Verify download
