@@ -89,9 +89,9 @@ That meant you no longer need a complex, fragile cloud service to render maps. T
 
 Best of all, because the map is stored as a single static file, it requires no maintenance. There are no databases to patch, no servers to upgrade, no dependencies to update. Upload the file once and it works indefinitely.
 
-This class will show you how you can do just that using open-source tools and cheap cloud-computing services. Once you're done, your only ongoing cost will be hosting files on [Amazon S3](https://aws.amazon.com/s3/) or a competitor service, which can be done for just a few dollars a month.
+This class will show you how you can make a basemap of your own using open-source code and cheap cloud-computing services. Once you're done, your only ongoing cost will be hosting files on [Amazon S3](https://aws.amazon.com/s3/) or a competitor service, which can be done for just a few dollars a month.
 
-The code we'll work through was initially developed in 2025 for [Reuters](https://www.reuters.com/), the world's largest multimedia news provider. The newsroom uses it as the foundation for publishing its data-driven journalism. For instance, Reuters journalist [Casey Miller](https://www.reuters.com/authors/casey-miller/) has used it to create interactive maps that track hurricane activity around the world.
+The methods we'll work through were initially developed in 2025 for [Reuters](https://www.reuters.com/), the world's largest multimedia news provider. The newsroom uses its basemap as the foundation for publishing its data-driven journalism. For instance, Reuters journalist [Casey Miller](https://www.reuters.com/authors/casey-miller/) has used it to create interactive maps that track hurricane activity around the world.
 
 ![Reuters hurricane map](_static/reuters-hurricanes.jpg)
 
