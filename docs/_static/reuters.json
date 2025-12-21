@@ -23,7 +23,7 @@
   "sources": {
     "reuters": {
       "type": "vector",
-      "url": "pmtiles://https://graphics.thomsonreuters.com/reuters-protomaps/planet-20250729-105401-base-map.pmtiles"
+      "url": "pmtiles://https://first-basemap.s3.amazonaws.com/planet-20251221-185206-base.pmtiles"
     },
     "reuters-building": {
       "type": "vector",
