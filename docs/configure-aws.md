@@ -110,7 +110,7 @@ Tthen click the button that says "Edit outbound rules."
 
 ![EC2 search](_static/outbound-tab.png)
 
-Now make sure there is a rule that allows for "HTTPS" traffic on port 433 to the "Custom" destination of 0.0.0.0/0, which means anywhere. If there is not, click the button that says "Add rule" and put in those options. Then click "Save rules."
+Now make sure there are rules that allow for "HTTP" traffic on port 80 and "HTTPS" traffic on port 443 to the "Custom" destination of 0.0.0.0/0, which means anywhere. If those rules are not there, click the button that says "Add rule" and put in those options. Then click "Save rules."
 
 ![EC2 search](_static/outbound-rules.png)
 

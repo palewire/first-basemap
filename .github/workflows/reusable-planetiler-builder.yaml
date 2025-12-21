@@ -17,6 +17,10 @@ on:
       aws_security_group_id:
         description: 'The AWS security group ID to use'
         type: string
+      aws_s3_bucket_name:
+        description: 'S3 bucket for uploading tiles'
+        required: true
+        type: string
       ec2_image_id:
         description: 'The AMI ID to use'
         type: string
@@ -105,6 +109,13 @@ jobs:
     timeout-minutes: ${{ inputs.timeout_minutes }}
 
     steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.aws_region }}
+
       - name: Setup working directory
         run: |
           # Use NVMe instance storage for best performance
@@ -132,7 +143,7 @@ jobs:
           java -jar planetiler.jar --help > /dev/null
           echo "✓ Planetiler downloaded successfully"
 
-      - name: Configure simplification parameters
+      - name: Configure parameters
         run: |
           # Set simplification parameters based on selected profile
           case "${{ inputs.product }}" in
@@ -149,6 +160,10 @@ jobs:
               SIMPLIFY_TOLERANCE_MAX_ZOOM="0.3"
               MIN_FEATURE_SIZE="1.5"
               MIN_FEATURE_SIZE_MAX_ZOOM="0.5"
+              ;;
+             *)
+              echo "Error: Unknown product '${{ inputs.product }}'"
+              exit 1
               ;;
           esac
 
@@ -168,8 +183,6 @@ jobs:
           echo "Min feature size at max zoom: $MIN_FEATURE_SIZE_MAX_ZOOM"
           echo "================================="
 
-      - name: Configure zoom levels
-        run: |
           # Set the zoom levels based on the product
           case "${{ inputs.product }}" in
             'buildings')
@@ -266,23 +279,83 @@ jobs:
             exit 1
           fi
 
-      # - name: Upload to S3 bucket
-      #   if: env.GENERATION_SUCCESS == 'true'
-      #   working-directory: ${{ env.WORK_DIR }}
-      #   run: |
-      #     # Set upload path
-      #     S3_PATH="s3://${AWS_S3_BUCKET_NAME}/${OUTPUT_FILE}"
-      #     echo "Uploading to: $S3_PATH"
+      - name: Ensure S3 bucket exists
+        if: env.GENERATION_SUCCESS == 'true'
+        run: |
+          BUCKET="${{ inputs.aws_s3_bucket_name }}"
 
-      #     # Run upload of the output file
-      #     METADATA="generation-date=$TIMESTAMP,github-run=${{ github.run_id }},zoom-levels=$MIN_ZOOM-$MAX_ZOOM,simplification-profile=${{ inputs.product }}"
-      #     aws s3 cp "$OUTPUT_FILE" "$S3_PATH" \
-      #       --storage-class INTELLIGENT_TIERING \
-      #       --metadata "$METADATA" \
-      #       --no-progress
+          if ! aws s3api head-bucket --bucket "$BUCKET" 2>/dev/null; then
+            echo "Creating bucket $BUCKET..."
+            if [ "${{ inputs.aws_region }}" = "us-east-1" ]; then
+              aws s3api create-bucket --bucket "$BUCKET"
+            else
+              aws s3api create-bucket \
+                --bucket "$BUCKET" \
+                --create-bucket-configuration LocationConstraint=${{ inputs.aws_region }}
+            fi
+            echo "✓ Bucket created"
+          else
+            echo "✓ Bucket already exists"
+          fi
 
-      #     echo "✓ Upload complete!"
-      #     echo "Tiles available at: $S3_PATH"
+          # Disable Block Public Access
+          echo "Configuring public access settings..."
+          aws s3api put-public-access-block \
+            --bucket "$BUCKET" \
+            --public-access-block-configuration \
+            "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"
+
+          # Add public read policy
+          echo "Applying public read policy..."
+          cat > /tmp/bucket-policy.json << EOF
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Sid": "PublicReadGetObject",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:GetObject",
+                "Resource": "arn:aws:s3:::${BUCKET}/*"
+              }
+            ]
+          }
+          EOF
+
+          aws s3api put-bucket-policy --bucket "$BUCKET" --policy file:///tmp/bucket-policy.json
+          echo "✓ Public access configured"
+
+          # Add after the bucket policy in "Ensure S3 bucket exists"
+          echo "Configuring CORS..."
+          cat > /tmp/cors.json << EOF
+          {
+            "CORSRules": [{
+              "AllowedOrigins": ["*"],
+              "AllowedMethods": ["GET", "HEAD"],
+              "AllowedHeaders": ["*"],
+              "MaxAgeSeconds": 3600
+            }]
+          }
+          EOF
+          aws s3api put-bucket-cors --bucket "$BUCKET" --cors-configuration file:///tmp/cors.json
+
+      - name: Upload to S3 bucket
+        if: env.GENERATION_SUCCESS == 'true'
+        working-directory: ${{ env.WORK_DIR }}
+        run: |
+          S3_PATH="s3://${{ inputs.aws_s3_bucket_name }}/${OUTPUT_FILE}"
+          echo "Uploading to: $S3_PATH"
+
+          # Upload with metadata and caching headers, which will tell CDNs to cache for 1 day
+          aws s3 cp "$OUTPUT_FILE" "$S3_PATH" \
+            --storage-class INTELLIGENT_TIERING \
+            --content-type "application/octet-stream" \
+            --cache-control "public, max-age=86400" \
+            --metadata "github-run=${{ github.run_id }},product=${{ inputs.product }}" \
+            --no-progress
+
+          echo "✓ Upload complete!"
+          echo "Public URL: https://${{ inputs.aws_s3_bucket_name }}.s3.amazonaws.com/${OUTPUT_FILE}"
 
   stop-runner:
     name: Stop self-hosted EC2 runner
