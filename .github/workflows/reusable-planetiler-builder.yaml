@@ -338,6 +338,7 @@ jobs:
           }
           EOF
           aws s3api put-bucket-cors --bucket "$BUCKET" --cors-configuration file:///tmp/cors.json
+          echo "✓ CORS configured"
 
       - name: Upload to S3 bucket
         if: env.GENERATION_SUCCESS == 'true'
