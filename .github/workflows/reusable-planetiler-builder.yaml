@@ -245,30 +245,26 @@ jobs:
           echo ""
 
           # Run Planetiler
-          set +e  # Don't exit on error
           $PLANETILER_CMD 2>&1 | tee planetiler.log
-          PLANETILER_EXIT=$?
-          set -e
 
-          # Check result
-          if [ $PLANETILER_EXIT -eq 0 ] && [ -f "$OUTPUT_FILE" ]; then
-            echo ""
-            echo "✓ Planet tiles generated successfully!"
-            echo "End time: $(date)"
-            ls -lh "$OUTPUT_FILE"
-            echo "OUTPUT_FILE=$OUTPUT_FILE" >> $GITHUB_ENV
-            echo "GENERATION_SUCCESS=true" >> $GITHUB_ENV
-          else
-            echo ""
-            echo "✗ Planet tile generation failed! (exit code: $PLANETILER_EXIT)"
-            echo "End time: $(date)"
-            tail -100 planetiler.log
-            echo "GENERATION_SUCCESS=false" >> $GITHUB_ENV
+          # Verify output
+          if [ ! -f "$OUTPUT_FILE" ]; then
+            echo "✗ Output file not created"
             exit 1
           fi
 
+          FILE_SIZE=$(stat -c%s "$OUTPUT_FILE")
+          if [ "$FILE_SIZE" -lt 1000000 ]; then
+            echo "✗ Output file too small (${FILE_SIZE} bytes) - generation likely failed"
+            tail -100 planetiler.log
+            exit 1
+          fi
+
+          echo "✓ Planet tiles generated successfully!"
+          ls -lh "$OUTPUT_FILE"
+          echo "OUTPUT_FILE=$OUTPUT_FILE" >> $GITHUB_ENV
+
       - name: Ensure S3 bucket exists
-        if: env.GENERATION_SUCCESS == 'true'
         run: |
           BUCKET="${{ inputs.aws_s3_bucket_name }}"
 
@@ -329,7 +325,6 @@ jobs:
           echo "✓ CORS configured"
 
       - name: Upload to S3 bucket
-        if: env.GENERATION_SUCCESS == 'true'
         working-directory: /mnt/planetiler
         run: |
           S3_PATH="s3://${{ inputs.aws_s3_bucket_name }}/${OUTPUT_FILE}"
