@@ -1,6 +1,6 @@
 # First Basemap
 
-Create a shockingly fast and virtually free interactive map of the world using the OpenStreetMap database and the PMTiles file format
+Create a shockingly fast and virtually free interactive map of the world using OpenStreetMap and PMTiles
 
 ### Links
 
