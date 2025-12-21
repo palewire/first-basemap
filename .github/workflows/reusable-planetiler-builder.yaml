@@ -68,19 +68,8 @@ jobs:
             # Update system
             sudo apt-get update -y
 
-            # Install dependencies for GitHub runner
-            sudo apt-get install -y docker.io git libicu-dev htop iotop nvme-cli
-
-            # Install required packages for Planetiler
-            sudo apt-get install -y \
-              make \
-              zip \
-              unzip \
-              curl \
-              sqlite3 \
-              gcc \
-              build-essential \
-              openjdk-21-jdk-headless
+            # Install required packages
+            sudo apt-get install -y git libicu-dev unzip curl nvme-cli openjdk-21-jdk-headless
 
             # Download and install AWS CLI v2
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -97,10 +86,6 @@ jobs:
               sudo mount /dev/nvme1n1 /mnt/planetiler
               sudo chmod 777 /mnt/planetiler
             fi
-
-            # Start Docker
-            sudo systemctl enable docker
-            sudo systemctl start docker
 
   generate-tiles:
     name: Generate tiles
@@ -125,6 +110,8 @@ jobs:
               SIMPLIFY_TOLERANCE_MAX_ZOOM="0.0625"
               MIN_FEATURE_SIZE="1.0"
               MIN_FEATURE_SIZE_MAX_ZOOM="0.0625"
+              MIN_ZOOM=13
+              MAX_ZOOM=15
               ;;
             'base')
               echo "Using a more aggressive simplification profile for a base map layer without buildings"
@@ -132,6 +119,8 @@ jobs:
               SIMPLIFY_TOLERANCE_MAX_ZOOM="0.3"
               MIN_FEATURE_SIZE="1.5"
               MIN_FEATURE_SIZE_MAX_ZOOM="0.5"
+              MIN_ZOOM=0
+              MAX_ZOOM=15
               ;;
              *)
               echo "Error: Unknown product '${{ inputs.product }}'"
@@ -144,6 +133,8 @@ jobs:
           echo "SIMPLIFY_TOLERANCE_MAX_ZOOM=$SIMPLIFY_TOLERANCE_MAX_ZOOM" >> $GITHUB_ENV
           echo "MIN_FEATURE_SIZE=$MIN_FEATURE_SIZE" >> $GITHUB_ENV
           echo "MIN_FEATURE_SIZE_MAX_ZOOM=$MIN_FEATURE_SIZE_MAX_ZOOM" >> $GITHUB_ENV
+          echo "MIN_ZOOM=$MIN_ZOOM" >> $GITHUB_ENV
+          echo "MAX_ZOOM=$MAX_ZOOM" >> $GITHUB_ENV
 
           # Display simplification parameters
           echo ""
@@ -152,29 +143,6 @@ jobs:
           echo "Simplify tolerance at max zoom: $SIMPLIFY_TOLERANCE_MAX_ZOOM"
           echo "Min feature size: $MIN_FEATURE_SIZE"
           echo "Min feature size at max zoom: $MIN_FEATURE_SIZE_MAX_ZOOM"
-          echo "================================="
-
-          # Set the zoom levels based on the product
-          case "${{ inputs.product }}" in
-            'buildings')
-              echo "Using zoom levels 13-15 for the buildings layer"
-              MIN_ZOOM=13
-              MAX_ZOOM=15
-              ;;
-            'base')
-              echo "Using zoom levels 0-15 for the base layer without buildings"
-              MIN_ZOOM=0
-              MAX_ZOOM=15
-              ;;
-          esac
-
-          # Export to GitHub environment for next steps
-          echo "MIN_ZOOM=$MIN_ZOOM" >> $GITHUB_ENV
-          echo "MAX_ZOOM=$MAX_ZOOM" >> $GITHUB_ENV
-
-          # Display selected zoom levels
-          echo ""
-          echo "=== Zoom Levels ==="
           echo "Min zoom: $MIN_ZOOM"
           echo "Max zoom: $MAX_ZOOM"
           echo "===================="
@@ -309,7 +277,7 @@ jobs:
           aws s3api put-bucket-policy --bucket "$BUCKET" --policy file:///tmp/bucket-policy.json
           echo "✓ Public access configured"
 
-          # Add after the bucket policy in "Ensure S3 bucket exists"
+          # Add CORS configuration
           echo "Configuring CORS..."
           cat > /tmp/cors.json << EOF
           {
@@ -333,7 +301,6 @@ jobs:
           # Upload with metadata and caching headers, which will tell CDNs to cache for 1 day
           aws s3 cp "$OUTPUT_FILE" "$S3_PATH" \
             --storage-class INTELLIGENT_TIERING \
-            --content-type "application/octet-stream" \
             --cache-control "public, max-age=86400" \
             --metadata "github-run=${{ github.run_id }},product=${{ inputs.product }}" \
             --no-progress
