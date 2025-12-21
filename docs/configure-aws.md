@@ -1,4 +1,4 @@
-# Scaling up with Amazon Web Services
+# Scaling up with AWS
 
 GitHub Actions can do a lot, but sometimes it's simply not enough. The free service has limits on disk space, processing units and how long jobs can run.
 
@@ -8,7 +8,7 @@ When you need more horsepower, one solution is to link Actions up with more powe
 
 ## Introducing Amazon Web Services
 
-[Amazon Web Services](https://en.wikipedia.org/wiki/Amazon_Web_Services) is a cloud platform that offers almost every form of computing power for lease. It includes a service known as EC2, which will spin up servers of all shapes and sizes, which you can use to run jobs that exceed the limits of GitHub's resources.
+[Amazon Web Services](https://en.wikipedia.org/wiki/Amazon_Web_Services) is a cloud platform, commonly referred to as AWS, that offers almost every form of computing power for lease. It includes a service known as EC2, which will spin up servers of all shapes and sizes, which you can use to run jobs that exceed the limits of GitHub's resources.
 
 It's a great combination. You get the nearly limitless capacity of Amazon without losing the convenience of GitHub's Actions interface.
 
@@ -50,7 +50,7 @@ The final screen will show you the key's ID and secret. I've redacted my pair in
 
 Copy and paste them into a text file for safekeeping. You will not be able to see the secret key again. They are what Actions will use to gain access to AWS from outside the console.
 
-Next we will need to configure your account's networking to allow for EC2 servers to communicate with GitHub. This is done by creating a virtual privae cloud, known as a VPC, with a subnet that allows for public access.
+Next we will need to configure your account's networking to allow for EC2 servers to communicate with GitHub. This is done by creating a virtual private cloud, known as a VPC, with a subnet that allows for public access.
 
 Return to the search bar at the top of the Amazon console and search for VPC.
 
@@ -106,7 +106,7 @@ We need to make sure that your servers have "outbound" rights to talk to GitHub.
 
 ![EC2 search](_static/security-group-profile.png)
 
-Tthen click the button that says "Edit outbound rules."
+Then click the button that says "Edit outbound rules."
 
 ![EC2 search](_static/outbound-tab.png)
 
@@ -117,6 +117,8 @@ Now make sure there are rules that allow for "HTTP" traffic on port 80 and "HTTP
 Before you go we need to save the security group ID for later. You will find it at the top of the profile page. Copy and paste it to the same place you saved the subnet ID.
 
 ![EC2 search](_static/copy-sg.png)
+
+## Creating a Personal Access Token
 
 Now we need to create a Personal Access Token, or PAT, that will allow GitHub to access your EC2 servers. This is done by going to your GitHub profile page and clicking on "Settings" and then selecting the "Developer settings" link at the bottom of the left-hand menu. You'll then want to select the "Tokens (classic)" option from under "Personal access tokens" in the left-hand menu.
 
@@ -140,6 +142,8 @@ That will print out your token. Copy and paste it into the same text file where 
 
 ![GitHub settings](_static/tokens-copy.png)
 
+## Saving your secrets in GitHub
+
 Now all of these secrets need to be saved in your repository's settings. You can do this by going to the repository's main page and clicking on the "Settings" tabs. Then select "Secrets and variables" from the left-hand menu and then "Actions."
 
 You should then see a button that says "New repository secret." Click it.
@@ -154,288 +158,241 @@ Then you should do the same thing by adding your AWS access key ID as `AWS_ACCES
 
 Phew. After all that, you're finally ready to run your first Action on EC2.
 
+## Creating a workflow that uses EC2
+
 There are a number of different ways to connect outside servers to Actions. We are going to use a set of shortcuts [packaged up in the Actions marketplace](https://github.com/marketplace/actions/on-demand-self-hosted-aws-ec2-runner-for-github-actions) by Volodymyr Machula.
 
 ![GitHub settings](_static/self-hosted-action.png)
 
-I've worked through his documentation and created a template for your start with. It's available in this tutorial's repository as [reusable-ec2-job.yaml](https://github.com/palewire/first-basemap/blob/main/.github/workflows/reusable-ec2-job.yaml).
+I've worked through his documentation and created a template for your start with. It's available in this tutorial's repository as [ec2-custom-runner-example.yaml](https://github.com/palewire/first-basemap/blob/main/.github/workflows/ec2-custom-runner-example.yaml).
 
-This form of workflow is what GitHub called a "composite" action. That means that other actions can call on it without having to reproduce all of its code. This is a great way to reduce redundancy when you doing the same thing in more than one workflow.
-
-```yaml
-name: 'Reusable workflow: Custom EC2 runner'
-
-on:
-  workflow_call:
-    inputs:
-      command:
-        description: 'The terminal command to run'
-        required: true
-        type: string
-      aws_region:
-        description: 'The AWS region to use'
-        type: string
-        default: 'us-east-1'
-      aws_subnet_id:
-        description: 'The AWS subnet ID to use'
-        type: string
-      aws_security_group_id:
-        description: 'The AWS security group ID to use'
-        type: string
-      ec2_image_id:
-        description: 'The AMI ID to use'
-        type: string
-      ec2_instance_type:
-        description: 'The EC2 instance type to use'
-        type: string
-      ec2_volume_size:
-        description: 'The EC2 volume size in GB'
-        type: number
-        default: 50
-      timeout_minutes:
-        description: 'The timeout in minutes for the job'
-        type: number
-
-jobs:
-  start-runner:
-    name: Start self-hosted EC2 runner
-    runs-on: ubuntu-latest
-    outputs:
-      label: ${{ steps.start-ec2-runner.outputs.label }}
-      ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.aws_region }}
-
-      - name: Start EC2 runner
-        id: start-ec2-runner
-        uses: machulav/ec2-github-runner@v2.4.2
-        with:
-          mode: start
-          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          ec2-image-id: ${{ inputs.ec2_image_id }}
-          ec2-instance-type: ${{ inputs.ec2_instance_type }}
-          ec2-volume-size: ${{ inputs.ec2_volume_size }}
-          subnet-id: ${{ inputs.aws_subnet_id }}
-          security-group-id: ${{ inputs.aws_security_group_id }}
-          pre-runner-script: |
-            sudo yum update -y && \
-            sudo yum install docker -y && \
-            sudo yum install git -y && \
-            sudo yum install libicu -y && \
-            sudo systemctl enable docker && \
-            sudo systemctl start docker
-
-  run:
-    name: Run
-    needs: start-runner
-    runs-on: ${{ needs.start-runner.outputs.label }}
-    timeout-minutes: ${{ inputs.timeout_minutes }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Run
-        run: ${{ inputs.command }}
-
-  stop-runner:
-    name: Stop self-hosted EC2 runner
-    needs:
-      - start-runner
-      - run
-    runs-on: ubuntu-latest
-    if: ${{ always() }}
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.aws_region }}
-
-      - name: Stop EC2 runner
-        uses: machulav/ec2-github-runner@v2.4.2
-        with:
-          mode: stop
-          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          label: ${{ needs.start-runner.outputs.label }}
-          ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
-```
-
-We won't walk through every detail of what's happening in the file, but here's a quick overview. At the top we define a setting known as `workflow_call`, which will define the inputs that other workflows will need to provide when they call on this one. We'll fill these in later on when we create a workflow that uses this reusable action.
+Here's the full contents of the file. It might seem like a lot, but don't worry. We'll walk through it piece by piece.
 
 ```yaml
-  workflow_call:
-    inputs:
-      command:
-        description: 'The terminal command to run'
-        required: true
-        type: string
-      aws_region:
-        description: 'The AWS region to use'
-        type: string
-      aws_subnet_id:
-        description: 'The AWS subnet ID to use'
-        type: string
-      aws_security_group_id:
-        description: 'The AWS security group ID to use'
-        type: string
-      ec2_image_id:
-        description: 'The AMI ID to use'
-        type: string
-      ec2_instance_type:
-        description: 'The EC2 instance type to use'
-        type: string
-      ec2_volume_size:
-        description: 'The EC2 volume size in GB'
-        type: number
-        default: 50
-      timeout_minutes:
-        description: 'The timeout in minutes for the job'
-        type: number
-```
-
-The `command` input will be what this example workflow runs on the EC2 instance. In a real-world example, a single line of code may not be sufficient. You'll see later on where you could add additional steps for more complex tasks.
-
-The `aws_region` is the unique identifier of the Amazon data center where you want to run your EC2 instance. Unless you changed it when you logged into your Amazon console, it should be the default of `us-east-1`, which corresponds to the Virginia data center.
-
-You can see that I've created options for our Amazon VPC and security group, as well as a few other things you may not recognize.
-
-The `ec2_image_id` will expect the unique indentifier of the operating system that Amazon will install on the server, which is commonly known as the AMI.
-
-The `ec2_instance_type` expects you to specific the size of the server to start up. You can find the menu of available hardware [on the Amazon site](https://aws.amazon.com/ec2/instance-types/).
-
-The `ec2_volume_size` is how much disk space you want to allocate to the server, measured in gigabytes. The default is 50 GB, which should be sufficient for most tasks.
-
-The `timeout_minutes` option is how long you want to give the job to run before it times out.
-
-After that, the workflow is essentially a three step process. The first step is to use a traditional Actions server to connect with Amazon and fire up a new EC2 instance with your specificed configuration. This example assumes you are using a machine image based on Amazon Linux 2023. If you end up using an image on another operating system, you will need to change the `pre-runner-script` to install the dependencies necesary to communicate with GitHub and run Actions.
-
-```yaml
-  start-runner:
-    name: Start self-hosted EC2 runner
-    runs-on: ubuntu-latest
-    outputs:
-      label: ${{ steps.start-ec2-runner.outputs.label }}
-      ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.aws_region }}
-
-      - name: Start EC2 runner
-        id: start-ec2-runner
-        uses: machulav/ec2-github-runner@v2.4.2
-        with:
-          mode: start
-          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          ec2-image-id: ${{ inputs.ec2_image_id }}
-          ec2-instance-type: ${{ inputs.ec2_instance_type }}
-          ec2-volume-size: ${{ inputs.ec2_volume_size }}
-          subnet-id: ${{ inputs.aws_subnet_id }}
-          security-group-id: ${{ inputs.aws_security_group_id }}
-          pre-runner-script: |
-            sudo yum update -y && \
-            sudo yum install docker -y && \
-            sudo yum install git -y && \
-            sudo yum install libicu -y && \
-            sudo systemctl enable docker
-```
-
-The second step is to run the command you want. But unlike the first, it will be run inside the custom EC2 runner, not in one of GitHub's servers. Notice that it is able to checkout your repository and run any command you want.
-
-```yaml
-  run:
-    name: Run
-    needs: start-runner
-    runs-on: ${{ needs.start-runner.outputs.label }}
-    timeout-minutes: ${{ inputs.timeout_minutes }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Run
-        run: ${{ inputs.command }}
-```
-
-If you wanted to take on more sophisticated tasks in your custom server, you could additional steps there that could do things like install Python or another programming language, fire up a database or run a series of scripts.
-
-And then third step is to shut down the server when you're finished. It will run whether the job succeeds or not.
-
-```yaml
-  stop-runner:
-    name: Stop self-hosted EC2 runner
-    needs:
-      - start-runner
-      - run
-    runs-on: ubuntu-latest
-    if: ${{ always() }}
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.aws_region }}
-
-      - name: Stop EC2 runner
-        uses: machulav/ec2-github-runner@v2.4.2
-        with:
-          mode: stop
-          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          label: ${{ needs.start-runner.outputs.label }}
-          ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
-```
-
-This is a very important step. Why? Because if you forget to shut down the server, it will keep running and you will be charged for it. Amazon charges by the hour, so if you leave a server running unmonitored you could soon end up with a hefty bill. It's a good idea to routinely check in on the AWS console to make sure you don't have any servers running that you forgot about. You can do that by going to the EC2 panel and selecting "Instances" from the left-hand menu. Any orphaned servers can be terminated from there.
-
-You could copy that complete file into your repository's `.github/workflows` directory alongside your other actions and give it aname like `reusable-ec2-job.yaml`.
-
-Now the final step is to create a workflow that will call on this reusable action. You can do that by creating a new file in the same directory with a name like `ec2-job.yaml`. The contents of that file should look something like the follow. You'll want to customize the line that inherits our reusable action to match your repository name and branch.
-
-{emphasize-lines="8"}
-```yaml
-name: "EC2 custom runner"
+name: "EC2 custom runner example"
 
 on:
   workflow_dispatch:
 
+# Customize these values for your environment
+env:
+  # AWS
+  AWS_REGION: us-east-1
+  AWS_SUBNET_ID: your-subnet-id-here
+  AWS_SECURITY_GROUP_ID: your-security-group-id-here
+
+  # EC2
+  EC2_IMAGE_ID: ami-0e86e20dae9224db8   # Ubuntu 24.04 LTS
+  EC2_INSTANCE_TYPE: r5d.8xlarge        # 32 vCPUs, 256 GB RAM, 2x600 GB NVMe SSD
+  EC2_VOLUME_SIZE: 50                   # Root volume size in GB
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  pipeline:
-    uses: palewire/first-basemap/.github/workflows/reusable-ec2-job.yaml@main
-    secrets: inherit
-    with:
-      command: echo 'Hello world'
-      aws_region: us-east-1
-      aws_subnet_id: subnet-04b767d962c0efdff
-      aws_security_group_id: sg-0fe118aaf037afaa2
-      ec2_image_id: ami-0f37c4a1ba152af46
-      ec2_instance_type: m8g.xlarge
-      ec2_volume_size: 50
-      timeout_minutes: 4320
+  start-runner:
+    name: Start self-hosted EC2 runner
+    runs-on: ubuntu-latest
+    outputs:
+      label: ${{ steps.start-ec2-runner.outputs.label }}
+      ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Start EC2 runner
+        id: start-ec2-runner
+        uses: machulav/ec2-github-runner@v2.4.2
+        with:
+          mode: start
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          ec2-image-id: ${{ env.EC2_IMAGE_ID }}
+          ec2-instance-type: ${{ env.EC2_INSTANCE_TYPE }}
+          ec2-volume-size: ${{ env.EC2_VOLUME_SIZE }}
+          subnet-id: ${{ env.AWS_SUBNET_ID }}
+          security-group-id: ${{ env.AWS_SECURITY_GROUP_ID }}
+          pre-runner-script: |
+            # Update system
+            sudo apt-get update -y
+
+            # Install required packages
+            sudo apt-get install -y git libicu-dev
+
+  run:
+    name: Run
+    needs: start-runner
+    runs-on: ${{ needs.start-runner.outputs.label }}
+    timeout-minutes: 240  # This is four hours. You can dial it as high as you'd like.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # Your custom steps go here, as they would with any other Actions runner
+      - name: Run
+        run: echo 'Hello world'
+
+  stop-runner:
+    name: Stop self-hosted EC2 runner
+    needs:
+      - start-runner
+      - run
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Stop EC2 runner
+        uses: machulav/ec2-github-runner@v2.4.2
+        with:
+          mode: stop
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          label: ${{ needs.start-runner.outputs.label }}
+          ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
 ```
 
-For this example, I'm submitting a rudimentary command that simply prints "Hello world" to the console. You can replace that with any command you want, including a script that runs a complex analysis or builds a large dataset.
+At the top we include the name and `workflow_dispatch` trigger, just our first Action. After that you'll see something new: the `env` section. That is where we define environment variables that will be used throughout the workflow.
 
-I've put in my Amazon configuration options to `aws_region`, `aws_subnet_id` and `aws_security_group`. You could put these values into your secrets if you wanted to keep them private. I'm putting them because I plan to terminate them soon after this tutorial is finished.
+{emphasize-lines="6-16"}
+```yaml
+name: "EC2 custom runner example"
 
-In the `ec2_image_id` field, I've put in the ID of the Amazon Linux 2023 AMI that I found in the Amazon's "AMI Catalog," which you can find by searching the term in the bar at the top of the console. I found it by picking the ARM variation of the first option in the list.
+on:
+  workflow_dispatch:
 
-![AMI picker](_static/ami-picker.png)
+# Customize these values for your environment
+env:
+  # AWS
+  AWS_REGION: us-east-1
+  AWS_SUBNET_ID: your-subnet-id-here
+  AWS_SECURITY_GROUP_ID: your-security-group-id-here
 
-The `ec2_instance_type` is the size of the server. I picked the `m8g.xlarge` option, which is a good balance between price and performance. But you can rev up to as many as 96 CPUs if you like.
+  # EC2
+  EC2_IMAGE_ID: ami-0e86e20dae9224db8   # Ubuntu 24.04 LTS
+  EC2_INSTANCE_TYPE: r5d.8xlarge        # 32 vCPUs, 256 GB RAM, 2x600 GB NVMe SSD
+  EC2_VOLUME_SIZE: 50                   # Root volume size in GB
+```
 
-Finally, I set the `timeout_minutes` to 4320, which is three days. You can set it to whatever you want, but be careful not to set it too high or you could end up with a big bill if the server never stop.
+You should enter the subnet ID and security group ID that you saved earlier in the `AWS_SUBNET_ID` and `AWS_SECURITY_GROUP_ID` fields.
 
-Once you've saved this file and committed to your repository, it's now ready to be called from the Actions tab like any other. You'll see it execute as a three-step process, just like our YAML config suggests, with second step happening over on EC2.
+You'll also see the configuration options for the EC2 server, which I've filled with a settings that will work for most Actions. The `EC2_IMAGE_ID` is the unique identifier of the operating system that Amazon will install on the server, which is commonly known as the AMI. The `EC2_INSTANCE_TYPE` is the size of the server to start up. You can find the menu of available hardware [on the Amazon site](https://aws.amazon.com/ec2/instance-types/). The `EC2_VOLUME_SIZE` is how much disk space you want to allocate to the server, measured in gigabytes. The default I set is 50 GB, which should be sufficient for most tasks. You can change any of these values to suit your needs.
+
+Then the `concurrency` section ensures that only one instance of this workflow will run at a time. If you try to start a second one while the first is still running, the first will be canceled.
+
+```yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+```
+
+After that, the workflow is essentially a three-step process. The first step uses a traditional Actions server to connect with Amazon and fire up a new EC2 instance with your specified configuration.
+
+This example assumes you are using a machine image based on Ubuntu 24.04 LTS. If you end up using an image of another operating system, you will need to change the `pre-runner-script` to install the dependencies necessary to communicate with GitHub and run Actions.
+
+```yaml
+jobs:
+  start-runner:
+    name: Start self-hosted EC2 runner
+    runs-on: ubuntu-latest
+    outputs:
+      label: ${{ steps.start-ec2-runner.outputs.label }}
+      ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Start EC2 runner
+        id: start-ec2-runner
+        uses: machulav/ec2-github-runner@v2.4.2
+        with:
+          mode: start
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          ec2-image-id: ${{ env.EC2_IMAGE_ID }}
+          ec2-instance-type: ${{ env.EC2_INSTANCE_TYPE }}
+          ec2-volume-size: ${{ env.EC2_VOLUME_SIZE }}
+          subnet-id: ${{ env.AWS_SUBNET_ID }}
+          security-group-id: ${{ env.AWS_SECURITY_GROUP_ID }}
+          pre-runner-script: |
+            # Update system
+            sudo apt-get update -y
+
+            # Install required packages
+            sudo apt-get install -y git libicu-dev
+```
+
+The second step will then be run inside the custom EC2 server, not in one of GitHub's servers. You can see that because the `runs-on` line is set to use the label provided by the first step.
+
+The `timeout-minutes` line sets how long this job can run before it is automatically terminated. I've set it to 240 minutes, or four hours, but could run the server for as long as you're willing to pay for it, one of the advantages of using your own hardware.
+
+Finally, the `steps` section is where you put in the commands you want to run on your custom server, just as you would in any other Actions workflow. In this case, I've just included a simple "Hello world" command after checking out the repository.
+
+{emphasize-lines="4,5,10-12"}
+```yaml
+  run:
+    name: Run
+    needs: start-runner
+    runs-on: ${{ needs.start-runner.outputs.label }}  # Provided by step one.
+    timeout-minutes: 240  # This is four hours. You can dial it as high as you'd like.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # Your custom steps go here, as they would with any other Actions runner
+      - name: Run
+        run: echo 'Hello world'
+```
+
+If you wanted to take on more sophisticated tasks in your custom server, you could add additional steps there that could do things like install Python or another programming language, fire up a database or run a series of scripts.
+
+And then third step is to shut down the server when you're finished. Because of the `if` configuration option, it will run whether the job succeeds or not.
+
+{emphasize-lines="7"}
+```yaml
+  stop-runner:
+    name: Stop self-hosted EC2 runner
+    needs:
+      - start-runner
+      - run
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Stop EC2 runner
+        uses: machulav/ec2-github-runner@v2.4.2
+        with:
+          mode: stop
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          label: ${{ needs.start-runner.outputs.label }}
+          ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
+```
+
+```{note}
+The `if` clause is a very important. Why? Because if you forget to shut down the server, it will keep running and racking up charges. Amazon charges by the hour, so if you leave a server running unmonitored you could soon end up with a hefty bill.
+
+It's a good idea to routinely check in on the AWS console to make sure you don't have any orphaned servers running. You can do that by going to the EC2 panel and selecting "Instances" from the left-hand menu. Any leftover servers can be terminated from there.
+```
+
+You could copy that complete file into your repository's `.github/workflows` directory alongside your other actions. Once you've edited the file to include your configuration options and runner scripts, you can commit it to your repository and call it from the Actions tab like any other workflow. You'll see it execute as a three-step process, just like our YAML config suggests, with second step happening over on EC2.
 
 ![GitHub actions](_static/run-custom.png)
 
-And that's it. You now have a custom EC2 runner that can be used to run any command you want one whatever server you want for as long as you want.
+And that's it. You now have a custom EC2 runner that can be used to run any command you want on whatever server you want for as long as you want. Next we'll put it to work building map tiles.
