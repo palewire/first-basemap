@@ -1,10 +1,8 @@
 # Introducing YAML
 
-Our focus in this class will be configuring GitHub Actions to run your code, not how to write the code itself.
+Our focus in this class will be configuring GitHub Actions to build a global basemap using off the shelf tools, so we won't be writing much code ourselves or covering everything GitHub Actions can do.
 
-So, we won’t be covering how to use Python, JavaScript or another programming language to develop an automation tailored to a specific goal. Instead, we will show you broad patterns you can use to automate tasks within Actions, which you can adapt to fit the scripts you write in the programming language of your choice.
-
-However, to work with Actions, you need to know one crucial tool that may be new to you: the YAML programming language.
+However, to work with Actions, you need to know one crucial tool that may be new to you: the YAML configuration language.
 
 [YAML](https://en.wikipedia.org/wiki/YAML) is a data structuring system designed to store information in a way that is easy for people to read and write. It stands for "YAML Ain't Markup Language" because it does not wrap data in tags like HTML or XML, a technique known as markup.
 
@@ -35,7 +33,9 @@ address:
 
 In the case of Actions, YAML is used in the configuration files to tell the system what to do. These files are known as workflows. You can store them in a directory called `.github/workflows` at the root of GitHub code repositories with a .yml or .yaml file extension.
 
-In the case of our example, the social media bot that posts new jobs at Reuters, [the Actions YAML file](https://github.com/palewire/reuters-jobs/blob/main/.github/workflows/etl.yaml) is as follows. Don't worry if you don't understand it yet. In our next chapter, we'll start with the basics and, gradually, you'll learn how to craft your own YAML files to harness the power of Actions and accomplish your goals.
+Later in this class, you'll create a YAML workflow that launches powerful EC2 servers on Amazon Web Services, runs Planetiler to process the entire OpenStreetMap planet file, and uploads the resulting map tiles to S3. Don't worry if you don't understand YAML yet. In our next chapter, we'll start with the basics and, gradually, you'll learn how to craft your own workflows to build and deploy your basemap.
+
+Here's a preview of what a simple GitHub Actions workflow looks like. This example is from a social media bot that posts job listings, but the structure will be similar to the Planetiler workflow you'll create:
 
 ```yaml
 name: "Extract, transform and alert"
