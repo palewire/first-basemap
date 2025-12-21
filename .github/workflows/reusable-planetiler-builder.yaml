@@ -215,8 +215,8 @@ jobs:
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
           OUTPUT_FILE="planet-${TIMESTAMP}-${{ inputs.product }}.pmtiles"
 
-          # Build Planetiler command
-          PLANETILER_CMD="java -Xmx650g -XX:MaxHeapFreeRatio=40 -jar planetiler.jar"
+          # Build Planetiler command, starting with Java invocation and configuration of memory
+          PLANETILER_CMD="java -Xmx200g -XX:MaxHeapFreeRatio=40 -jar planetiler.jar"
 
           # Configure data source
           PLANETILER_CMD="$PLANETILER_CMD --area=planet --bounds=world --download"
