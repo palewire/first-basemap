@@ -22,7 +22,7 @@ A simple example is the [@ReutersJobs](https://mastodon.palewi.re/@ReutersJobs) 
 
 [![@ReutersJobs post](_static/reuters-jobs-post.png)](https://mastodon.palewi.re/@ReutersJobs/113823961066565728)
 
-The bot's code is [hosted on GitHub](https://github.com/palewire/reuters-jobs) where Actions linked to the repository are configured to run a series of Python scripts every six hours. This process that is logged and monitored via [the repository's Actions tab](https://github.com/palewire/reuters-jobs/actions).
+The bot's code is [hosted on GitHub](https://github.com/palewire/reuters-jobs) where Actions linked to the repository are configured to run a series of Python scripts every six hours. This process is logged and monitored via [the repository's Actions tab](https://github.com/palewire/reuters-jobs/actions).
 
 [![@ReutersJobs actions](_static/reuters-jobs-actions.png)](https://github.com/palewire/reuters-jobs/actions)
 

@@ -55,7 +55,7 @@ on:
   workflow_dispatch:
 ```
 
-They keyword `on` is used to determine when the Action file will run. When it is configured with `workflow_dispatch`, the Action can be run manually from the monitoring panel.
+The keyword `on` is used to determine when the Action file will run. When it is configured with `workflow_dispatch`, the Action can be run manually from the monitoring panel.
 
 :::{admonition} Note
 You can read more about different options for configuring `on` [in GitHub's documentation](https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#on).
@@ -134,7 +134,7 @@ jobs:
 While Actions is free up to 2,000 minutes per month, the fees incurred at higher usage levels [vary](https://docs.github.com/en/billing/managing-billing-for-your-products/managing-billing-for-github-actions/about-billing-for-github-actions#minute-multipliers) depending on the runner you choose. Ubuntu runners are the least expensive.
 :::
 
-Each job then runs as many `steps` as you want to layout as a list. Give each task a name and tell it what to do. In our case, we are simply printing out "Hello world" to the console using the built-in [`echo`](https://linux.die.net/man/1/echo) command.
+Each job then runs as many `steps` as you want to lay out as a list. Give each step a name and tell it what to do. In our case, we are simply printing out "Hello world" to the console using the built-in [`echo`](https://linux.die.net/man/1/echo) command.
 
 {emphasize-lines="10-12"}
 ```yaml

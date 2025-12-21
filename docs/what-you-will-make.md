@@ -65,6 +65,6 @@ The new [PMTiles](https://github.com/protomaps/PMTiles) file format allowed, for
 
 That meant that instead of needing a complex, fragile server setup to render maps, you could rely on an inexpensive static file service. Suddenly, all it took to escape an expensive mapping contract was be to convert the free-and-open [OpenStreetMap](https://www.openstreetmap.org/) data that powers many commercial maps to the free alternative format.
 
-This class will show you how to you can do just that using open-source tools and low-cost cloud-computing services. Once you're done, your only ongoing cost will be hosting a single file on [Amazon S3](https://aws.amazon.com/s3/) or a competitor, which can be done for just a few dollars a month.
+This class will show you how you can do just that using open-source tools and low-cost cloud-computing services. Once you're done, your only ongoing cost will be hosting a single file on [Amazon S3](https://aws.amazon.com/s3/) or a competitor, which can be done for just a few dollars a month.
 
 It will take a lot of different tools to get the job done, but none of them are difficult to use and we'll proceed slowly, step-by-step. Ready?
