@@ -62,10 +62,10 @@ jobs:
           security-group-id: ${{ inputs.aws_security_group_id }}
           pre-runner-script: |
             # Update system
-            sudo apt update -y
+            sudo apt-get update -y
 
-            # Install dependencies
-            sudo apt install -y docker.io git libicu-dev htop iotop nvme-cli
+            # Install dependencies for GitHub runner
+            sudo apt-get install -y docker.io git libicu-dev htop iotop nvme-cli
 
             # Setup NVMe instance storage
             if lsblk | grep -q nvme1n1; then
@@ -88,7 +88,10 @@ jobs:
     steps:
       - name: Install apt dependencies
         run: |
-          sudo apt-get update
+          # Configure apt to prefer IPv4 over IPv6
+          echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4
+
+          # Install required packages for Planetiler
           sudo apt-get install -y \
             make \
             zip \
