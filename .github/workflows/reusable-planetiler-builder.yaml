@@ -67,6 +67,23 @@ jobs:
             # Install dependencies for GitHub runner
             sudo apt-get install -y docker.io git libicu-dev htop iotop nvme-cli
 
+            # Install required packages for Planetiler
+            sudo apt-get install -y \
+              make \
+              zip \
+              unzip \
+              curl \
+              sqlite3 \
+              gcc \
+              build-essential \
+              openjdk-21-jdk-headless
+
+            # Download and install AWS CLI v2
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+            rm -rf aws awscliv2.zip
+
             # Setup NVMe instance storage
             if lsblk | grep -q nvme1n1; then
               sudo mkfs.xfs /dev/nvme1n1
@@ -86,45 +103,6 @@ jobs:
     timeout-minutes: ${{ inputs.timeout_minutes }}
 
     steps:
-      - name: Install apt dependencies
-        run: |
-          # Configure apt to prefer IPv4 over IPv6
-          echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4 > /dev/null
-
-          # Replace http with https for Ubuntu archives
-          sudo sed -i 's|http://|https://|g' /etc/apt/sources.list
-
-          # Update package lists over HTTPS
-          sudo apt-get update -y
-
-          # Install required packages for Planetiler
-          sudo apt-get install -y \
-            make \
-            zip \
-            unzip \
-            curl \
-            sqlite3 \
-            gcc \
-            build-essential \
-            openjdk-21-jdk-headless
-
-      - name: Install AWS CLI
-        run: |
-            # Download and install AWS CLI v2
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-            rm -rf aws awscliv2.zip
-
-            # Verify installation
-            aws --version
-
-      - name: Start Docker
-        run: |
-          sudo apt install -y docker.io
-          sudo systemctl start docker
-          sudo systemctl enable docker
-
       - name: Setup working directory
         run: |
           # Use NVMe instance storage for best performance
@@ -136,7 +114,6 @@ jobs:
           fi
 
           echo "Using working directory: $WORK_DIR"
-          cd $WORK_DIR
           echo "WORK_DIR=$WORK_DIR" >> $GITHUB_ENV
 
       - name: Download Planetiler
