@@ -85,7 +85,7 @@ Then open-source software changed the equation.
 
 The new [PMTiles](https://github.com/protomaps/PMTiles) file format allowed for the massive database needed to render a detailed map of the world to be stored and served efficiently from a single file.
 
-That meant you no longer need a complex, fragile cloud service to render maps. Thanks to PMTiles, all it takes to escape an expensive mapping contract is to convert the free-and-open [OpenStreetMap](https://www.openstreetmap.org/) database to the new format.
+That meant you no longer need a complex, fragile cloud service to render maps. All it takes to escape an expensive mapping contract is to convert the free-and-open [OpenStreetMap](https://www.openstreetmap.org/) database to the new format.
 
 Best of all, because the map is stored as a single static file, it requires no maintenance. There are no databases to patch, no servers to upgrade, no dependencies to update. Upload the file once and it works indefinitely.
 
