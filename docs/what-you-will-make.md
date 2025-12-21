@@ -11,8 +11,14 @@ Here's an example of the basemap that [Reuters](https://www.reuters.com/) develo
     <div id="demo-map" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;"></div>
 </div>
 <script src="https://unpkg.com/maplibre-gl@5.5.0/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/pmtiles@3/dist/pmtiles.js"></script>
 <link href="https://unpkg.com/maplibre-gl@5.5.0/dist/maplibre-gl.css" rel="stylesheet">
 <script>
+    // Register PMTiles protocol with MapLibre
+    let protocol = new pmtiles.Protocol();
+    maplibregl.addProtocol('pmtiles', protocol.tile);
+
+    // Create the map
     const map = new maplibregl.Map({
         container: 'demo-map',
         style: '_static/style.json',

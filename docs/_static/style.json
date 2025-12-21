@@ -10,6 +10,10 @@
     "openmaptiles": {
       "type": "vector",
       "url": "pmtiles://https://first-basemap.s3.amazonaws.com/planet-20251221-185206-base.pmtiles"
+    },
+    "buildings": {
+      "type": "vector",
+      "url": "pmtiles://https://first-basemap.s3.amazonaws.com/planet-20251221-163629-buildings.pmtiles"
     }
   },
   "sprite": "https://maputnik.github.io/osm-liberty/sprites/osm-liberty",
@@ -2013,7 +2017,7 @@
     {
       "id": "building",
       "type": "fill",
-      "source": "openmaptiles",
+      "source": "buildings",
       "source-layer": "building",
       "minzoom": 13,
       "maxzoom": 14,
@@ -2034,7 +2038,7 @@
     {
       "id": "building-3d",
       "type": "fill-extrusion",
-      "source": "openmaptiles",
+      "source": "buildings",
       "source-layer": "building",
       "minzoom": 14,
       "paint": {
