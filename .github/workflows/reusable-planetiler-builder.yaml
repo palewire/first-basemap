@@ -88,8 +88,8 @@ jobs:
     steps:
       - name: Install apt dependencies
         run: |
-          sudo apt update -y
-          sudo apt install -y \
+          sudo apt-get update
+          sudo apt-get install -y \
             make \
             zip \
             unzip \
