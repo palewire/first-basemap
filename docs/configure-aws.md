@@ -2,7 +2,7 @@
 
 GitHub Actions can do a lot, but sometimes it's simply not enough. The free service has limits on disk space, processing units and how long jobs can run.
 
-Our project is just such a case. Processing gigabytes of data to building a map of the entire world will easily exceed what GitHub supplies.
+Our project is just such a case. Processing gigabytes of data to build a map of the entire world will easily exceed what GitHub supplies.
 
 When you need more horsepower, one solution is to link Actions up with more powerful hardware.
 
@@ -60,7 +60,7 @@ Click on the link that says "VPC" and then click the button that says "Create VP
 
 ![VPC create](_static/vpc-home.png)
 
-Scroll to bottom of the page, accepting all the default settings, and click the button that says "Create VPC."
+Scroll to the bottom of the page, accepting all the default settings, and click the button that says "Create VPC."
 
 ![VPC create](_static/vpc-create.png)
 
@@ -88,7 +88,7 @@ You've done it. But before you go, we need to save the subnet identifier for lat
 
 ![VPC subnets](_static/subnet-id.png)
 
-Next we will need to ensure that your EC2 servers use this subnet to access GitHub. We do this by setting what are known as a security group.
+Next we will need to ensure that your EC2 servers use this subnet to access GitHub. We do this by setting what is known as a security group.
 
 Return to the top search bar and this time punch in EC2. Select the top result.
 
@@ -154,7 +154,7 @@ First, the personal access token from GitHub should go in as `GH_PERSONAL_ACCESS
 
 ![GitHub settings](_static/add-secret.png)
 
-Then you should do the same thing by adding your AWS access key ID as `AWS_ACCESS_KEY_ID` and you AWS secret access key as `AWS_SECRET_ACCESS_KEY`.
+Then you should do the same thing by adding your AWS access key ID as `AWS_ACCESS_KEY_ID` and your AWS secret access key as `AWS_SECRET_ACCESS_KEY`.
 
 Phew. After all that, you're finally ready to run your first Action on EC2.
 
@@ -164,7 +164,7 @@ There are a number of different ways to connect outside servers to Actions. We a
 
 ![GitHub settings](_static/self-hosted-action.png)
 
-I've worked through his documentation and created a template for your start with. It's available in this tutorial's repository as [ec2-custom-runner-example.yaml](https://github.com/palewire/first-basemap/blob/main/.github/workflows/ec2-custom-runner-example.yaml).
+I've worked through his documentation and created a template for you to start with. It's available in this tutorial's repository as [ec2-custom-runner-example.yaml](https://github.com/palewire/first-basemap/blob/main/.github/workflows/ec2-custom-runner-example.yaml).
 
 Here's the full contents of the file. It might seem like a lot, but don't worry. We'll walk through it piece by piece.
 
@@ -260,7 +260,7 @@ jobs:
           ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
 ```
 
-At the top we include the name and `workflow_dispatch` trigger, just our first Action. After that you'll see something new: the `env` section. That is where we define environment variables that will be used throughout the workflow.
+At the top we include the name and `workflow_dispatch` trigger, just like our first Action. After that you'll see something new: the `env` section. That is where we define environment variables that will be used throughout the workflow.
 
 {emphasize-lines="6-16"}
 ```yaml
@@ -284,7 +284,7 @@ env:
 
 You should enter the subnet ID and security group ID that you saved earlier in the `AWS_SUBNET_ID` and `AWS_SECURITY_GROUP_ID` fields.
 
-You'll also see the configuration options for the EC2 server, which I've filled with a settings that will work for most Actions. The `EC2_IMAGE_ID` is the unique identifier of the operating system that Amazon will install on the server, which is commonly known as the AMI. The `EC2_INSTANCE_TYPE` is the size of the server to start up. You can find the menu of available hardware [on the Amazon site](https://aws.amazon.com/ec2/instance-types/). The `EC2_VOLUME_SIZE` is how much disk space you want to allocate to the server, measured in gigabytes. The default I set is 50 GB, which should be sufficient for most tasks. You can change any of these values to suit your needs.
+You'll also see the configuration options for the EC2 server, which I've filled with settings that will work for most Actions. The `EC2_IMAGE_ID` is the unique identifier of the operating system that Amazon will install on the server, which is commonly known as the AMI. The `EC2_INSTANCE_TYPE` is the size of the server to start up. You can find the menu of available hardware [on the Amazon site](https://aws.amazon.com/ec2/instance-types/). The `EC2_VOLUME_SIZE` is how much disk space you want to allocate to the server, measured in gigabytes. The default I set is 50 GB, which should be sufficient for most tasks. You can change any of these values to suit your needs.
 
 Then the `concurrency` section ensures that only one instance of this workflow will run at a time. If you try to start a second one while the first is still running, the first will be canceled.
 
@@ -357,7 +357,7 @@ Finally, the `steps` section is where you put in the commands you want to run on
 
 If you wanted to take on more sophisticated tasks in your custom server, you could add additional steps there that could do things like install Python or another programming language, fire up a database or run a series of scripts.
 
-And then third step is to shut down the server when you're finished. Because of the `if` configuration option, it will run whether the job succeeds or not.
+And then the third step is to shut down the server when you're finished. Because of the `if` configuration option, it will run whether the job succeeds or not.
 
 {emphasize-lines="7"}
 ```yaml
@@ -386,12 +386,12 @@ And then third step is to shut down the server when you're finished. Because of 
 ```
 
 ```{note}
-The `if` clause is a very important. Why? Because if you forget to shut down the server, it will keep running and racking up charges. Amazon charges by the hour, so if you leave a server running unmonitored you could soon end up with a hefty bill.
+The `if` clause is very important. Why? Because if you forget to shut down the server, it will keep running and racking up charges. Amazon charges by the hour, so if you leave a server running unmonitored you could soon end up with a hefty bill.
 
 It's a good idea to routinely check in on the AWS console to make sure you don't have any orphaned servers running. You can do that by going to the EC2 panel and selecting "Instances" from the left-hand menu. Any leftover servers can be terminated from there.
 ```
 
-You could copy that complete file into your repository's `.github/workflows` directory alongside your other actions. Once you've edited the file to include your configuration options and runner scripts, you can commit it to your repository and call it from the Actions tab like any other workflow. You'll see it execute as a three-step process, just like our YAML config suggests, with second step happening over on EC2.
+You could copy that complete file into your repository's `.github/workflows` directory alongside your other actions. Once you've edited the file to include your configuration options and runner scripts, you can commit it to your repository and call it from the Actions tab like any other workflow. You'll see it execute as a three-step process, just like our YAML config suggests, with the second step happening over on EC2.
 
 ![GitHub actions](_static/run-custom.png)
 
