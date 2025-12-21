@@ -116,32 +116,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ inputs.aws_region }}
 
-      - name: Setup working directory
-        run: |
-          # Use NVMe instance storage for best performance
-          if [ -d "/mnt/planetiler" ]; then
-            export WORK_DIR="/mnt/planetiler"
-          else
-            export WORK_DIR="$HOME/planetiler"
-            mkdir -p $WORK_DIR
-          fi
-
-          echo "Using working directory: $WORK_DIR"
-          echo "WORK_DIR=$WORK_DIR" >> $GITHUB_ENV
-
-      - name: Download Planetiler
-        working-directory: ${{ env.WORK_DIR }}
-        run: |
-          echo "Downloading latest Planetiler..."
-          LATEST_URL=$(curl -s https://api.github.com/repos/onthegomap/planetiler/releases/latest \
-            | grep browser_download_url | head -1 | grep -E "planetiler.jar" | cut -d '"' -f 4)
-
-          echo "Download URL: $LATEST_URL"
-          curl -L -o planetiler.jar "$LATEST_URL"
-
-          # Verify download
-          java -jar planetiler.jar --help > /dev/null
-          echo "✓ Planetiler downloaded successfully"
 
       - name: Configure parameters
         run: |
@@ -207,6 +181,33 @@ jobs:
           echo "Min zoom: $MIN_ZOOM"
           echo "Max zoom: $MAX_ZOOM"
           echo "===================="
+
+      - name: Setup working directory
+        run: |
+          # Use NVMe instance storage for best performance
+          if [ -d "/mnt/planetiler" ]; then
+            export WORK_DIR="/mnt/planetiler"
+          else
+            export WORK_DIR="$HOME/planetiler"
+            mkdir -p $WORK_DIR
+          fi
+
+          echo "Using working directory: $WORK_DIR"
+          echo "WORK_DIR=$WORK_DIR" >> $GITHUB_ENV
+
+      - name: Download Planetiler
+        working-directory: ${{ env.WORK_DIR }}
+        run: |
+          echo "Downloading latest Planetiler..."
+          LATEST_URL=$(curl -s https://api.github.com/repos/onthegomap/planetiler/releases/latest \
+            | grep browser_download_url | head -1 | grep -E "planetiler.jar" | cut -d '"' -f 4)
+
+          echo "Download URL: $LATEST_URL"
+          curl -L -o planetiler.jar "$LATEST_URL"
+
+          # Verify download
+          java -jar planetiler.jar --help > /dev/null
+          echo "✓ Planetiler downloaded successfully"
 
       - name: Generate planet tiles
         working-directory: ${{ env.WORK_DIR }}
