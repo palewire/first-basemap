@@ -15,7 +15,7 @@ Here's an example of the basemap that [Reuters](https://www.reuters.com/) develo
 <script>
     const map = new maplibregl.Map({
         container: 'demo-map',
-        style: '_static/reuters.json',
+        style: '_static/style.json',
         center: [-98.5795, 39.8283],
         zoom: 1,
         minZoom: 1,

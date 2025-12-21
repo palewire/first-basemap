@@ -26,7 +26,7 @@ what-are-actions
 what-is-yaml
 create-actions
 configure-aws
-run-actions
+planetiler-action
 create-map
 customize-map
 deploy-map
