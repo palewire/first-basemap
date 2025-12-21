@@ -61,6 +61,13 @@ jobs:
           subnet-id: ${{ inputs.aws_subnet_id }}
           security-group-id: ${{ inputs.aws_security_group_id }}
           pre-runner-script: |
+            # Configure apt to prefer IPv4 over IPv6
+            echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4 > /dev/null
+
+            # Replace http with https for Ubuntu archives
+            sudo sed -i 's|http://|https://|g' /etc/apt/sources.list
+            sudo sed -i 's|http://|https://|g' /etc/apt/sources.list.d/*.list
+
             # Update system
             sudo apt-get update -y
 
