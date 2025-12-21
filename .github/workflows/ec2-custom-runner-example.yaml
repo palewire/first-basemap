@@ -1,35 +1,23 @@
-name: 'Reusable workflow: Custom EC2 runner'
+name: "EC2 custom runner example"
 
 on:
-  workflow_call:
-    inputs:
-      command:
-        description: 'The terminal command to run'
-        required: true
-        type: string
-      aws_region:
-        description: 'The AWS region to use'
-        type: string
-        default: 'us-east-1'
-      aws_subnet_id:
-        description: 'The AWS subnet ID to use'
-        type: string
-      aws_security_group_id:
-        description: 'The AWS security group ID to use'
-        type: string
-      ec2_image_id:
-        description: 'The AMI ID to use'
-        type: string
-      ec2_instance_type:
-        description: 'The EC2 instance type to use'
-        type: string
-      ec2_volume_size:
-        description: 'The EC2 volume size in GB'
-        type: number
-        default: 50
-      timeout_minutes:
-        description: 'The timeout in minutes for the job'
-        type: number
+  workflow_dispatch:
+
+# Customize these values for your environment
+env:
+  # AWS
+  AWS_REGION: us-east-1
+  AWS_SUBNET_ID: subnet-04b767d962c0efdff
+  AWS_SECURITY_GROUP_ID: sg-0fe118aaf037afaa2
+
+  # EC2
+  EC2_IMAGE_ID: ami-0e86e20dae9224db8   # Ubuntu 24.04 LTS
+  EC2_INSTANCE_TYPE: r5d.8xlarge        # 32 vCPUs, 256 GB RAM, 2x600 GB NVMe SSD
+  EC2_VOLUME_SIZE: 50                   # Root volume size in GB
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   start-runner:
@@ -44,7 +32,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.aws_region }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Start EC2 runner
         id: start-ec2-runner
@@ -52,30 +40,30 @@ jobs:
         with:
           mode: start
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          ec2-image-id: ${{ inputs.ec2_image_id }}
-          ec2-instance-type: ${{ inputs.ec2_instance_type }}
-          ec2-volume-size: ${{ inputs.ec2_volume_size }}
-          subnet-id: ${{ inputs.aws_subnet_id }}
-          security-group-id: ${{ inputs.aws_security_group_id }}
+          ec2-image-id: ${{ env.EC2_IMAGE_ID }}
+          ec2-instance-type: ${{ env.EC2_INSTANCE_TYPE }}
+          ec2-volume-size: ${{ env.EC2_VOLUME_SIZE }}
+          subnet-id: ${{ env.AWS_SUBNET_ID }}
+          security-group-id: ${{ env.AWS_SECURITY_GROUP_ID }}
           pre-runner-script: |
-            sudo yum update -y && \
-            sudo yum install docker -y && \
-            sudo yum install git -y && \
-            sudo yum install libicu -y && \
-            sudo systemctl enable docker && \
-            sudo systemctl start docker
+            # Update system
+            sudo apt-get update -y
+
+            # Install required packages
+            sudo apt-get install -y git libicu-dev
 
   run:
     name: Run
     needs: start-runner
     runs-on: ${{ needs.start-runner.outputs.label }}
-    timeout-minutes: ${{ inputs.timeout_minutes }}
+    timeout-minutes: 240  # This is four hours. You can dial it as high as you'd like.
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
+      # Your custom steps go here, as they would with any other Actions runner
       - name: Run
-        run: ${{ inputs.command }}
+        run: echo 'Hello world'
 
   stop-runner:
     name: Stop self-hosted EC2 runner
@@ -90,7 +78,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.aws_region }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Stop EC2 runner
         uses: machulav/ec2-github-runner@v2.4.2
