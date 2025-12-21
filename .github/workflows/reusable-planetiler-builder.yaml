@@ -89,10 +89,13 @@ jobs:
       - name: Install apt dependencies
         run: |
           # Configure apt to prefer IPv4 over IPv6
-          echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4
+          echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4 > /dev/null
 
           # Replace http with https for Ubuntu archives
           sudo sed -i 's|http://|https://|g' /etc/apt/sources.list
+
+          # Update package lists over HTTPS
+          sudo apt-get update -y
 
           # Install required packages for Planetiler
           sudo apt-get install -y \
