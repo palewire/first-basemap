@@ -87,7 +87,7 @@ The new [PMTiles](https://github.com/protomaps/PMTiles) file format allowed for 
 
 That meant you no longer need a complex, fragile cloud service to render maps. Thanks to PMTiles, all it takes to escape an expensive mapping contract is to convert the free-and-open [OpenStreetMap](https://www.openstreetmap.org/) database to the new format.
 
-Best of all, because the map is stored as a single static file, it requires no maintenance. There are no databases to patch, no servers to upgrade, no dependencies to update. Upload the file once and it works indefinitely — whether that's months, years or decades.
+Best of all, because the map is stored as a single static file, it requires no maintenance. There are no databases to patch, no servers to upgrade, no dependencies to update. Upload the file once and it works indefinitely.
 
 This class will show you how you can do just that using open-source tools and cheap cloud-computing services. Once you're done, your only ongoing cost will be hosting files on [Amazon S3](https://aws.amazon.com/s3/) or a competitor service, which can be done for just a few dollars a month.
 
