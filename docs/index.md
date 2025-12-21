@@ -12,7 +12,7 @@ Create a shockingly fast and virtually free interactive map of the world using O
 
 ## Who can take it
 
-This course is free. Previous experience working with Amazon Web Services and GitHub Actions will be useful, but anyone with a good attitude is qualified to take the class.
+This course is free. Previous experience working with Amazon Web Services and GitHub Actions will be useful, but anyone with a good attitude is qualified.
 
 ## Table of contents
 
