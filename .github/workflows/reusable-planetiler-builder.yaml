@@ -209,7 +209,7 @@ jobs:
           java -jar planetiler.jar --help > /dev/null
           echo "✓ Planetiler downloaded successfully"
 
-      - name: Generate planet tiles
+      - name: Generate PMTiles file
         working-directory: ${{ env.WORK_DIR }}
         run: |
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
