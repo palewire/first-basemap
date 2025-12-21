@@ -27,7 +27,7 @@
     },
     "reuters-building": {
       "type": "vector",
-      "url": "pmtiles://https://graphics.thomsonreuters.com/reuters-protomaps/planet-20250729-105009-buildings.pmtiles"
+      "url": "pmtiles://https://first-basemap.s3.amazonaws.com/planet-20251221-163629-buildings.pmtiles"
     },
     "reuters-world-hillshade": {
       "type": "raster",
