@@ -96,7 +96,7 @@ The steps we'll work through were mapped out in the summer of 2025 at [Reuters](
 ![Reuters hurricane map](_static/reuters-hurricanes.jpg)
 
 ```{note}
-The development of Reuters basemap was led by [Scott Reinhard](https://scottreinhardmaps.com/), who has written a detailed explanation of his design process [on his blog](). While the fonts, styles and other customizations he tailored for Reuters are copyrighted, the underlying techniques are free for anyone to adapt.
+The development of the Reuters basemap was led by [Scott Reinhard](https://scottreinhardmaps.com/), who has written a detailed explanation of his design process [on his blog](). While the fonts, styles and other customizations he tailored for Reuters are copyrighted, the underlying techniques are free for anyone to adapt.
 ```
 
 The chief challenge in creating a basemap is the size of the OpenStreetMap database, which aims to contains every border, road, building and natural feature on the planet. Processing that much data requires powerful computers that can run for hours.
