@@ -87,11 +87,11 @@ The new [PMTiles](https://github.com/protomaps/PMTiles) file format allowed for 
 
 That meant you no longer need a complex, fragile cloud service to render maps. All it takes to escape an expensive mapping contract is to convert the free-and-open [OpenStreetMap](https://www.openstreetmap.org/) database to the new format.
 
-That's not all. Because the map is stored as a single static file, it requires no maintenance. There are no databases to patch, no servers to upgrade, no dependencies to update. Upload the file once and it works indefinitely.
+That's not all. Because the map is stored as a single static file, it requires no maintenance. There are no databases to patch, no servers to update. Upload the file once and it works indefinitely.
 
-This class will show you how you can make a basemap of your own using open-source code and cheap cloud-computing services. Once you're done, your only ongoing cost will be hosting files on [Amazon S3](https://aws.amazon.com/s3/) or a competitor service, which can be done for just a few dollars a month.
+This class will show you how to make this new style of basemap using open-source code and cheap cloud-computing services. Once you're done, your only ongoing cost will be hosting files on [Amazon S3](https://aws.amazon.com/s3/) or a competitor service, which can be done for just a few dollars a month.
 
-The methods we'll work through were initially developed in 2025 for [Reuters](https://www.reuters.com/), the world's largest multimedia news provider. The newsroom uses its basemap as the foundation for publishing its data-driven journalism. For instance, Reuters journalist [Casey Miller](https://www.reuters.com/authors/casey-miller/) has used it to create interactive maps that track hurricane activity around the world.
+The steps we'll work through were mapped out in the summer of 2025 at [Reuters](https://www.reuters.com/), the world's largest multimedia news provider. The newsroom uses its basemap as the foundation for publishing its data-driven journalism. For instance, Reuters journalist [Casey Miller](https://www.reuters.com/authors/casey-miller/) has used it to create interactive maps that track hurricane activity around the world.
 
 ![Reuters hurricane map](_static/reuters-hurricanes.jpg)
 
@@ -99,4 +99,10 @@ The methods we'll work through were initially developed in 2025 for [Reuters](ht
 The development of Reuters basemap was led by [Scott Reinhard](https://scottreinhardmaps.com/), who has written a detailed explanation of his design process [on his blog](). While the fonts, styles and other customizations he tailored for Reuters are copyrighted, the underlying techniques are free for anyone to adapt.
 ```
 
-It will take a lot of different tools to get the job done, but none of them are difficult to use and we'll proceed slowly, step-by-step. Ready?
+The chief challenge in creating a basemap is the size of the OpenStreetMap database, which aims to contains every border, road, building and natural feature on the planet. Processing that much data requires powerful computers that can run for hours.
+
+We'll use [GitHub Actions](https://docs.github.com/en/actions), a cloud-computing service, to schedule and run our tasks. That will be linked with an [Amazon Web Services](https://aws.amazon.com/) account to supply the large servers and static file hosting we need to build and publish the map.
+
+While it will take a lot of different tools to get the job done, none of them are difficult to use. Once you have everything configured, making a new basemap is as simple as pushing a button.
+
+Ready?
