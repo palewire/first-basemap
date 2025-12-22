@@ -96,7 +96,7 @@ jobs:
 
 A workflow run consists of one or more `jobs`, which can run sequentially or in parallel depending on your configuration. In this simple case we only have a single job called `hello`.
 
-{emphasize-lines="6-7"}
+{emphasize-lines="6-12"}
 ```yaml
 name: First Action
 
