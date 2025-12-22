@@ -8,7 +8,7 @@ If you already have a GitHub account, please log in. If you do not have one, ple
 
 Once you are logged into GitHub, create a new repository by clicking on the "New" button at the top-left corner or simply click this link: [github.com/new](https://github.com/new).
 
-Now, fill in a name for your new repository. A good example would be `first-basemap`. Make sure your repository is public - this will allow us to access GitHub pages later on in the class. Click on the "Create repository" button at the bottom of the form.
+Now, fill in a name for your new repository. A good example would be `first-basemap`. Once you're ready, click the "Create repository" button at the bottom of the form.
 
 ![GitHub repository creation form showing the repository name field and public/private visibility options](_static/create-repo.png)
 
