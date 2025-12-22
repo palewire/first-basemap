@@ -14,7 +14,7 @@ The tool offers [extensive configuration options](https://github.com/onthegomap/
 
 ## Why we need EC2
 
-In the last chapter, we created a simple Action that ran on a custom EC2 server. Now we're going to put that pattern to work to build a basemap of the entire world.
+In the last chapter, we created a simple Action that ran on a custom EC2 server. Now we're going to put that pattern to work.
 
 GitHub's standard Actions runners have fairly limited resources, and they're not allowed to run longer than six hours. While that might be suitable for most tasks, it's simply not enough power for this job.
 
