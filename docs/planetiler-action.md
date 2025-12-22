@@ -1,33 +1,28 @@
-# Building the basemap with Planetiler
+# Building the basemap
 
 Now that we have configured our AWS account and learned how to create custom EC2 runners with GitHub Actions, we're ready to put everything together and build our global basemap.
 
+To do that, we'll need to take advantage of another open-source tool.
+
 ## What is Planetiler?
 
-[Planetiler](https://github.com/onthegomap/planetiler) is an open-source Java application that can convert massive amounts of geographic data into map tiles. It was created by Michael Barry and is designed to be fast and memory-efficient, capable of processing the entire OpenStreetMap planet file in just a few hours on powerful hardware.
+[Planetiler](https://github.com/onthegomap/planetiler) is an open-source Java application that can convert massive amounts of geographic data into the PMTiles file format. It was created by [Michael Barry](https://github.com/msbarry), who designed it to be capable of processing the entire OpenStreetMap planet file in just a few hours.
 
-Planetiler can take data from multiple sources — including OpenStreetMap, Natural Earth and more — and convert it into a single PMTiles file. PMTiles is a cloud-optimized format that allows maps to be served directly from object storage like Amazon S3, without requiring a complex tile server.
+![The Planetiler GitHub repo](_static/planetiler.png)
 
-The tool offers extensive configuration options to control which map features are included, how they are simplified at different zoom levels, and what languages are supported. This flexibility makes it ideal for creating custom basemaps tailored to specific needs.
+The tool offers [extensive configuration options](https://github.com/onthegomap/planetiler/blob/main/config-example.properties) that control which map features are included, how they are handled at different zoom levels and other settings. That makes it possible to create different types of maps optimized for different use cases. Some developers use it to create highly customized maps limited to small areas, while others, like us, use it to create general-purpose basemaps of the entire world.
 
 ## Why we need EC2
 
 In the last chapter, we created a simple Action that ran on a custom EC2 server. Now we're going to put that pattern to work to build a basemap of the entire world.
 
-Processing the entire OpenStreetMap database is a massive undertaking. The planet file contains more than 8 billion nodes, 900 million ways, and 10 million relations. Converting all of that data into map tiles requires significant computing power and memory.
+GitHub's standard Actions runners have fairly limited resources, and they're not allowed to run longer than six hours. While that might be suitable for most tasks, it's simply not enough power for this job.
 
-GitHub's standard Actions runners have 4 CPUs, 16 GB of RAM and 14 GB of disk space. That's not enough. Planetiler needs:
-
-* At least 200 GB of RAM to efficiently process the planet file
-* Multiple high-speed CPUs to parallelize the work
-* Hundreds of gigabytes of fast disk space for temporary files
-* Several hours of continuous processing time
-
-That's why we're going to use a large EC2 instance to do the heavy lifting. In this case, we'll use an `r5d.8xlarge` instance, which has 32 CPUs, 256 GB of RAM, and 2x600 GB NVMe SSD drives. This configuration can process the entire planet in about 2-3 hours.
+Planetiler needs lots of RAM to efficiently process the planet file, multiple high-speed CPUs to parallelize the work and hundreds of gigabytes of fast disk space for temporary files. Given enough resources, it can complete map out the planet in a few hours, but on a small server that same task could take days or even weeks.
 
 ## Creating the Planetiler workflow
 
-Let's create a new workflow file that will build our basemap. Create a new file in your repository called `.github/workflows/build-planetiler.yaml`.
+Let's start by creating a new workflow file that will build our basemap files. Create a new file in your repository called `.github/workflows/build-planetiler.yaml`.
 
 We'll start with the familiar pattern from the previous chapter and gradually add the Planetiler-specific features.
 
