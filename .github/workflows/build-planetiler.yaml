@@ -24,10 +24,6 @@ env:
   EC2_INSTANCE_TYPE: r5d.8xlarge        # 32 vCPUs, 256 GB RAM, 2x600 GB NVMe SSD
   EC2_VOLUME_SIZE: 1000                 # Root volume size in GB
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.product }}
-  cancel-in-progress: true
-
 jobs:
   start-runner:
     name: Start self-hosted EC2 runner

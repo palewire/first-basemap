@@ -6,15 +6,13 @@ To do that, we'll need to take advantage of another open-source tool.
 
 ## What is Planetiler?
 
-[Planetiler](https://github.com/onthegomap/planetiler) is an open-source Java application that can convert massive amounts of geographic data into the PMTiles file format. It was created by [Michael Barry](https://github.com/msbarry), who designed it to be capable of processing the entire OpenStreetMap planet file in just a few hours.
+[Planetiler](https://github.com/onthegomap/planetiler) is a [Java](https://en.wikipedia.org/wiki/Java_(programming_language)) application that can convert massive amounts of geographic data into the PMTiles file format. It was created by [Michael Barry](https://github.com/msbarry), who designed it to be capable of processing the entire OpenStreetMap planet file in just a few hours.
 
 ![The Planetiler GitHub repo](_static/planetiler.png)
 
 The tool offers [extensive configuration options](https://github.com/onthegomap/planetiler/blob/main/config-example.properties) that control which map features are included, how they are handled at different zoom levels and other settings. That makes it possible to create different types of maps optimized for different use cases. Some developers use it to create highly customized maps limited to small areas, while others, like us, use it to create general-purpose basemaps of the entire world.
 
 ## Why we need EC2
-
-In the last chapter, we created a simple Action that ran on a custom EC2 server. Now we're going to put that pattern to work.
 
 GitHub's standard Actions runners have fairly limited resources, and they're not allowed to run longer than six hours. While that might be suitable for most tasks, it's simply not enough power for this job.
 
@@ -26,9 +24,7 @@ Let's start by creating a new workflow file that will build our basemap files. C
 
 We'll start with the familiar pattern from the previous chapter and gradually add the Planetiler-specific features.
 
-### Step 1: Basic structure with product choice
-
-First, let's set up the basic workflow structure. This time, we'll add a new feature: a choice input that allows you to select what type of map to build.
+First, let's set up the basic workflow structure. This time, we'll add a new feature: a `choice` input to the `workflow_dispatch` setting that allows you to select from two different map products to build.
 
 ```yaml
 name: Build Planetiler
@@ -41,29 +37,30 @@ on:
         required: true
         type: choice
         options:
-          - base        # A basemap without buildings and with more aggressive simplification
+          - base       # A basemap without buildings and with more aggressive simplification
           - buildings  # A buildings-only layer with minimal simplification
 ```
 
-The `choice` type creates a dropdown menu in the GitHub Actions interface. We're offering two options:
+This will create a dropdown menu in the GitHub Actions interface that you will use to configure Planetiler's parameters and build two different PMTiles files using the same workflow.
 
-* **base**: A complete basemap without building footprints, using aggressive simplification to keep file sizes smaller
-* **buildings**: A layer containing only building footprints with minimal simplification to preserve detail
+The two products are:
 
-This pattern allows you to generate different map products from the same workflow, each optimized for different use cases.
+* <b>`base`</b>: A complete basemap that includes everything except building footprints, which allows Planetiler to use aggressive simplification methods to reduce the number of points in complex borders, rivers and streets to keep the file size down
+* <b>`buildings`</b>: A layer containing only building footprints with minimal simplification to preserve the detail of buildings at high zoom levels
 
-### Step 2: Environment configuration
+We developed this two-layer approach at Reuters to balance performance and detail. The `base` layer provides a fast-loading overview of the world, while the `buildings` layer adds rich detail where needed.
 
-Next, add the environment variables that configure our AWS and EC2 settings. You should customize these values to match your AWS setup from the previous chapter.
+Next, add the environment variables that configure our AWS and EC2 settings.
 
+{emphasize-lines="5-7,12"}
 ```yaml
 # Customize these values for your environment
 env:
   # AWS
   AWS_REGION: us-east-1
-  AWS_SUBNET_ID: subnet-04b767d962c0efdff
-  AWS_SECURITY_GROUP_ID: sg-0fe118aaf037afaa2
-  AWS_S3_BUCKET_NAME: first-basemap
+  AWS_SUBNET_ID: your-subnet-id-here
+  AWS_SECURITY_GROUP_ID: your-security-group-id-here
+  AWS_S3_BUCKET_NAME: your-unique-bucket-name-here
 
   # EC2
   EC2_IMAGE_ID: ami-0e86e20dae9224db8   # Ubuntu 24.04 LTS
@@ -71,26 +68,15 @@ env:
   EC2_VOLUME_SIZE: 1000                 # Root volume size in GB
 ```
 
-Replace `AWS_SUBNET_ID` and `AWS_SECURITY_GROUP_ID` with the values you saved in the previous chapter. The `AWS_S3_BUCKET_NAME` should be a unique name for your bucket — we'll use this to store and serve the finished map tiles.
+ You should customize the `AWS_SUBNET_ID` and `AWS_SECURITY_GROUP_ID` values to match your AWS setup as in the previous chapter.
 
-The `EC2_INSTANCE_TYPE` is set to `r5d.8xlarge`, which is a memory-optimized instance with NVMe storage. The `d` in the name indicates it includes instance storage, which we'll use for faster processing. The `EC2_VOLUME_SIZE` of 1000 GB provides plenty of space for downloading and processing the OpenStreetMap data.
+ The `AWS_S3_BUCKET_NAME` is a new setting where you should place the name of the file hosting bucket where the finished PMTiles files will be stored. This will need to be something unique across all AWS users, so consider using a name that incorporates your GitHub username or your organization's name.
 
-### Step 3: Concurrency control
+You can keep the EC2 settings as is. We know they'll work. But notice that we've bumped up the `EC2_VOLUME_SIZE` to 1,000 gigabytes. Planetiler needs a lot of disk space for temporary files, so we're giving it more room to work.
 
-Add a concurrency section to ensure only one build runs at a time for each product:
+Create the first job, which starts our EC2 runner. This should look familiar from the previous chapter, with some important additions in the `pre-runner-script` section:
 
-```yaml
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.product }}
-  cancel-in-progress: true
-```
-
-This configuration creates a unique concurrency group based on the workflow name, the git reference (branch), and the product being built. If you start a new build while one is already running, the old one will be canceled automatically. This prevents wasting money on outdated builds.
-
-### Step 4: The start-runner job
-
-Now let's create the first job, which starts our EC2 runner. This should look familiar from the previous chapter, with some important additions:
-
+{emphasize-lines="27-48"}
 ```yaml
 jobs:
   start-runner:
@@ -142,18 +128,25 @@ jobs:
             fi
 ```
 
-The pre-runner script now includes several additions specific to Planetiler:
+The server is seeded with the Java programming language required by Planetiler, as well as the [AWS command-line interface](https://aws.amazon.com/cli/) needed to upload the finished tiles to S3. We're also included a trick that configures the server to use faster [NVMe storage](https://en.wikipedia.org/wiki/NVM_Express) for reading and writing files.
 
-* **openjdk-21-jdk-headless**: Planetiler is a Java application, so we need the Java Development Kit
-* **AWS CLI**: We'll use this to upload the finished tiles to S3
-* **NVMe setup**: The `r5d.8xlarge` instance includes fast NVMe storage at `/dev/nvme1n1`. We format it as XFS, mount it at `/mnt/planetiler`, and make it writable. This gives us much faster disk I/O than the standard EBS volume.
-
-### Step 5: The generate-tiles job
-
-Now comes the main event: the job that actually generates the map tiles. This job has several steps that build up gradually.
+Now our main event: the job that generates the map tiles. Let's add it piece by piece.
 
 First, the job configuration:
 
+```yaml
+  generate-tiles:
+    name: Generate tiles
+    needs: start-runner
+    runs-on: ${{ needs.start-runner.outputs.label }}
+    timeout-minutes: 240  # Four hours
+```
+
+The `needs: start-runner` tells GitHub Actions to wait for the first job to complete before starting this one. The `runs-on` uses the label from the EC2 runner we just started. The `timeout-minutes` is set to 240 (four hours), which should be enough time for Planetiler to process the planet file.
+
+The first step configures AWS credentials, just like before:
+
+{emphasize-lines="6-12"}
 ```yaml
   generate-tiles:
     name: Generate tiles
@@ -169,11 +162,11 @@ First, the job configuration:
           aws-region: ${{ env.AWS_REGION }}
 ```
 
-The `needs: start-runner` tells GitHub Actions to wait for the first job to complete before starting this one. The `runs-on` uses the label from the EC2 runner we just started. The `timeout-minutes` is set to 240 (four hours), which should be enough time for Planetiler to process the planet file.
+Now we configure the simplification and zoom parameters based on which product was selected.
 
-#### Configuring parameters
+The `base` product uses more aggressive simplification to reduce file size, while the `buildings` product uses minimal simplification to preserve detail.
 
-The first step configures the simplification parameters based on which product was selected:
+The `base` product includes all zoom levels from 0 to 15, while the `buildings` product only includes zoom levels 13-15 where buildings are visible.
 
 ```yaml
       - name: Configure parameters
@@ -224,19 +217,13 @@ The first step configures the simplification parameters based on which product w
           echo "===================="
 ```
 
-This uses a bash `case` statement to set different parameters based on the product choice. Let's understand what these parameters control:
-
-* **SIMPLIFY_TOLERANCE**: How much to simplify line geometries (higher = more simplification)
-* **MIN_FEATURE_SIZE**: Minimum size in tile pixels for features to appear (higher = fewer small features)
-* **MIN_ZOOM/MAX_ZOOM**: The range of zoom levels to generate
-
-For the base map, we use aggressive simplification (0.4 vs 0.1) and generate all zoom levels from 0 to 15. For buildings, we use minimal simplification and only generate zooms 13-15 where buildings are visible.
-
 The variables are exported to `$GITHUB_ENV`, which makes them available to all subsequent steps in the job.
 
-#### Downloading Planetiler
+```{note}
+These settings were developed by our Reuters team through an iterative process of trial and error. As with all design, your judgement may differ. You should feel free to adjust the parameters to suit your own needs and preferences. Making a new map is as easy as changing a few numbers and re-running the workflow!
+```
 
-Next, we download the latest version of Planetiler from GitHub:
+The next step downloads the latest version of Planetiler from GitHub by scraping the releases API to find the most recent JAR file.
 
 ```yaml
       - name: Download Planetiler
@@ -257,13 +244,12 @@ Next, we download the latest version of Planetiler from GitHub:
           echo "✓ Planetiler downloaded successfully"
 ```
 
-The `working-directory: /mnt/planetiler` tells this step to run in our fast NVMe storage directory. We use the GitHub API to find the latest release, extract the download URL, and download the JAR file. The verification step runs `--help` to make sure Java can execute it properly.
+The `working-directory: /mnt/planetiler` tells this step to run in our fast NVMe storage directory. The verification step runs `--help` to make sure Java can execute Planetiler properly.
 
-#### Generating the tiles
-
-Now comes the core step that actually generates the map tiles:
+Now the core step that generates the map tiles. It begins by gradually constructing the Planetiler command line statement that will kickstart the building based on the selected product and simplification parameters.
 
 ```yaml
+
       - name: Generate PMTiles file
         working-directory: /mnt/planetiler
         run: |
@@ -333,23 +319,16 @@ Now comes the core step that actually generates the map tiles:
           echo "OUTPUT_FILE=$OUTPUT_FILE" >> $GITHUB_ENV
 ```
 
-This is a complex step, so let's break it down:
+This is a complex operation that includes technical details that aren't all worth diving into here. But there are several key customizations that you may want to adjust to fit your needs. Here are the most important ones:
 
-1. **Output file naming**: We create a timestamped filename like `planet-20251221-143052-buildings.pmtiles`
+The `--languages=en` flag means that Planetiler will include only English names to reduce file size. You could add more with `--languages=en,es,fr`, if you preferred, or omit the flag entirely to include all available languages.
 
-2. **Java configuration**: `-Xmx200g` sets the maximum heap size to 200 GB. This is crucial for performance. `-XX:MaxHeapFreeRatio=40` helps manage memory more efficiently.
+The `--exclude-layers=housenumber,building,poi` flag for the `base` product removes not just building footprints but also house numbers and the massive database of [points of interest packaged with OpenStreetMap](https://wiki.openstreetmap.org/wiki/Points_of_interest). This helps keep the file size down for a general-purpose basemap. However, if you wanted to style and include points of interest, you should remove `poi` from the exclusion list.
 
-3. **Data source**: `--area=planet --bounds=world --download` tells Planetiler to download the entire planet file from OpenStreetMap's servers.
+```{note}
+All of the command-line options are documented in the [Planetiler](https://github.com/onthegomap/planetiler/blob/main/config-example.properties) repository. You can customize these settings further to suit your project.
+```
 
-4. **Download optimization**: `--download-threads=10` uses 10 parallel connections, and `--download-chunk-size-mb=1000` downloads in 1 GB chunks for efficiency.
-
-5. **Language limiting**: `--languages=en` includes only English names to reduce file size. You could add more with `--languages=en,es,fr`.
-
-6. **Storage mode**: `--storage=ram` keeps intermediate data in memory rather than on disk, which is much faster on our high-memory instance.
-
-7. **Layer selection**: For buildings, we use `--only-layers=building`. For the base map, we exclude buildings, house numbers, and POIs with `--exclude-layers`.
-
-8. **Logging and verification**: We pipe all output to both the console and a log file using `tee`. After Planetiler finishes, we verify the output file exists and is larger than 1 MB (a simple sanity check).
 
 #### Setting up S3
 
