@@ -1,31 +1,28 @@
 # Creating an interactive map
 
-Now that you've generated PMTiles files and uploaded them to S3, it's time to display them on a web page. We'll use [MapLibre GL JS](https://maplibre.org/maplibre-gl-js/docs/), an open-source library for rendering interactive vector maps in the browser.
+Now that you've generated PMTiles files and uploaded them to S3, it's time to display them on a web page. We'll use [MapLibre GL JS](https://maplibre.org/maplibre-gl-js/docs/), an open-source library for rendering interactive maps in the browser.
 
-## How MapLibre works
+[![MapLibre GL JS logo](_static/maplibre.png)](https://maplibre.org/)
 
-MapLibre displays maps by combining two things:
+MapLibre displays maps by combining your basemap's data with a style file that defines how the map presents labels, colors, lines and the other visual elements that make up a map.
 
-1. **Tile data** — The geographic features (roads, buildings, water, etc.) stored in your PMTiles files
-2. **A style file** — A JSON document that tells MapLibre how to draw those features (colors, line widths, fonts, etc.)
+We created the PMTiles files in the previous chapter, but we still need a style file before we can draw it on the page.
 
-The style file is where you'll plug in your PMTiles URLs.
+You could write a style file from scratch, like we did at Reuters for our custom basemap, but it's much easier to start with an existing one. A good on ramp is [OSM Liberty](https://github.com/maputnik/osm-liberty),an open-source style designed for the [OpenMapTiles](https://openmaptiles.org/) data schema, which is exactly what Planetiler produces.
 
-## Get a style file
+OSM Liberty was created using [Maputnik](https://maputnik.github.io/), an open-source visual style editor for MapLibre styles.
 
-You could write a style file from scratch, but it's much easier to start with an existing one. [OSM Liberty](https://github.com/maputnik/osm-liberty) is a free, open-source style designed for OpenMapTiles data — exactly what Planetiler produces.
+[![Maputnik logo](_static/maputnik.png)](https://maputnik.github.io/)
 
-Download the style file from the OSM Liberty repository. You can find it at:
+You can use Maputnik to customize the style later. To start, you should download the [default style](https://raw.githubusercontent.com/maputnik/osm-liberty/gh-pages/style.json) and modify it to use our PMTiles files as its data source.
+
+You can find it at:
 
 ```
 https://raw.githubusercontent.com/maputnik/osm-liberty/gh-pages/style.json
 ```
 
-Save this file as `style.json` in your project.
-
-## Configure the style for PMTiles
-
-Open `style.json` and find the `sources` section near the top. It will look something like this:
+Save the file as `style.json` in the root of your project directory. Open it up and find the `sources` section near the top. It will look something like this:
 
 ```json
 "sources": {
@@ -36,12 +33,10 @@ Open `style.json` and find the `sources` section near the top. It will look some
 }
 ```
 
-Replace the URL with your PMTiles file, using the special `pmtiles://` protocol prefix:
+Replace the URL with the base PMTiles URL created by your Actions workflow using the `pmtiles://` prefix
 
-```{code-block} json
----
-emphasize-lines: 4
----
+{emphasize-lines="4"}
+```json
 "sources": {
   "openmaptiles": {
     "type": "vector",
@@ -50,20 +45,12 @@ emphasize-lines: 4
 }
 ```
 
-The `pmtiles://` prefix tells MapLibre to use the PMTiles protocol adapter, which knows how to fetch tile data from a single PMTiles file using HTTP range requests.
+The prefix tells MapLibre to use the [PMTiles protocol adapter](https://www.npmjs.com/package/pmtiles), which knows how to fetch tile data from a single PMTiles file using [HTTP range requests](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Range_requests).
 
-:::{note}
-Replace `your-bucket` with your actual S3 bucket name, and `TIMESTAMP` with the timestamp from your generated file (e.g., `planet-20251221-185206-base.pmtiles`).
-:::
+To display 3D buildings, you need to add a second source for your buildings PMTiles file. Add the following block inside the `sources` section, below the existing `openmaptiles` source.
 
-### Add a buildings source
-
-Our Planetiler workflow generated two separate PMTiles files — one for the base map and one for buildings. To display 3D buildings, you need to add a second source:
-
-```{code-block} json
----
-emphasize-lines: 6-9
----
+{emphasize-lines="6-9"}
+```json
 "sources": {
   "openmaptiles": {
     "type": "vector",
@@ -72,55 +59,76 @@ emphasize-lines: 6-9
   "buildings": {
     "type": "vector",
     "url": "pmtiles://https://your-bucket.s3.amazonaws.com/planet-TIMESTAMP-buildings.pmtiles"
+  },
+  "natural_earth_shaded_relief": {
+    "maxzoom": 6,
+    "tileSize": 256,
+    "tiles": [
+      "https://klokantech.github.io/naturalearthtiles/tiles/natural_earth_2_shaded_relief.raster/{z}/{x}/{y}.png"
+    ],
+    "type": "raster"
   }
 }
 ```
 
-### Update layer source references
+Scroll down and you'll see that the style file contains many layers, dictating how to present rivers, roads, parks, labels and buildings at different zoom levels. Each layer specifies which source it pulls data from using the `"source"` property. Most layers reference `"openmaptiles"`, but the building layers need to reference your new `"buildings"` source.
 
-The style file contains many layers, and each layer specifies which source it pulls data from using the `"source"` property. Most layers reference `"openmaptiles"`, but the building layers need to reference your new `"buildings"` source.
+Search for layers with `"source-layer": "building"` in your style file. Edit the `"source"` property for these building layers points to your new source `"buildings"` and not `"openmaptiles"`.
 
-Search for layers with `"source-layer": "building"` in your style file. You'll find layers like these:
-
+{emphasize-lines="4,19"}
 ```json
 {
   "id": "building",
   "type": "fill",
   "source": "buildings",
   "source-layer": "building",
-  ...
+  "minzoom": 13,
+  "maxzoom": 14,
+  "paint": {
+    "fill-color": "hsl(35, 8%, 85%)",
+    "fill-outline-color": {
+      "base": 1,
+      "stops": [[13, "hsla(35, 6%, 79%, 0.32)"], [14, "hsl(35, 6%, 79%)"]]
+    }
+  }
 },
 {
   "id": "building-3d",
   "type": "fill-extrusion",
   "source": "buildings",
   "source-layer": "building",
-  ...
-}
+  "minzoom": 14,
+  "paint": {
+    "fill-extrusion-color": "hsl(35, 8%, 85%)",
+    "fill-extrusion-height": {
+      "property": "render_height",
+      "type": "identity"
+    },
+    "fill-extrusion-base": {
+      "property": "render_min_height",
+      "type": "identity"
+    },
+    "fill-extrusion-opacity": 0.8
+  }
+},
 ```
-
-Make sure the `"source"` property for these building layers points to `"buildings"` (your new source name), not `"openmaptiles"`.
 
 :::{tip}
 The `"source"` property tells MapLibre which tile source to read from, while `"source-layer"` specifies which layer *within* that source contains the data. Since our buildings PMTiles file has a layer called `"building"`, we set `"source": "buildings"` and `"source-layer": "building"`.
 :::
 
-## Create the HTML page
+Now let's create an HTML file that uses MapLibre to display our map. Create a new document named `index.html` and save it at the root of your project directory. Copy and paste the following code into it:
 
-Create an `index.html` file with the following code:
-
-```{code-block} html
----
-emphasize-lines: 17-18
----
+{emphasize-lines="17-18,22"}
+```html
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <title>My First Basemap</title>
-    <script src="https://unpkg.com/maplibre-gl@5.0.1/dist/maplibre-gl.js"></script>
-    <link href="https://unpkg.com/maplibre-gl@5.0.1/dist/maplibre-gl.css" rel="stylesheet">
-    <script src="https://unpkg.com/pmtiles@4.0.1/dist/pmtiles.js"></script>
+    <script src="https://unpkg.com/maplibre-gl@5.15.0/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@5.15.0/dist/maplibre-gl.css" rel="stylesheet">
+    <script src="https://unpkg.com/pmtiles@4.3.0/dist/pmtiles.js"></script>
     <style>
         body { margin: 0; }
         #map { width: 100vw; height: 100vh; }
@@ -135,33 +143,26 @@ emphasize-lines: 17-18
         const map = new maplibregl.Map({
             container: 'map',
             style: 'style.json',
-            center: [0, 20],
-            zoom: 1.5,
-            projection: { type: 'globe' }
+            center: [-73.9, 40.7],
+            zoom: 2.5,
+            maxZoom: 15
+        });
+
+        map.on('load', () => {
+            map.setProjection({ type: 'globe' });
         });
     </script>
 </body>
 </html>
 ```
 
-The highlighted lines register the PMTiles protocol with MapLibre. This is required for the `pmtiles://` URLs in your style file to work.
+This is mostly boilerplate MapLibre code, with two important additions.
 
-## Understanding the code
+The first set of highlighted lines register the PMTiles protocol with MapLibre. This is required for the `pmtiles://` URLs in your style file to work.
 
-Let's break down what's happening:
+The second highlight is the style property in the map configuration, which directs MapLibre to use the `style.json` file you just modified.
 
-- **Lines 6-8**: Load the MapLibre GL JS library, its CSS, and the PMTiles JavaScript library from CDN
-- **Lines 17-18**: Register the PMTiles protocol adapter so MapLibre can read PMTiles files
-- **Lines 20-26**: Create a new map instance with:
-  - `container`: The HTML element ID where the map will render
-  - `style`: Path to your modified style file
-  - `center`: Starting longitude and latitude
-  - `zoom`: Starting zoom level
-  - `projection`: Set to `'globe'` for a 3D globe view
-
-## Test locally
-
-To test your map, you'll need to serve the files through a local web server. Opening the HTML file directly won't work due to browser security restrictions.
+To test your map open a terminal in your project directory and start a simple HTTP server to serve your files.
 
 If you have Python installed, the easiest method is:
 
@@ -171,13 +172,12 @@ python -m http.server 8000
 
 Then open `http://localhost:8000` in your browser. You should see your basemap rendered as an interactive globe.
 
-:::{admonition} Troubleshooting
-:class: tip
+![Interactive map displayed in a web browser showing a globe with map tiles](_static/globe.png)
 
-If the map doesn't appear:
-- Check your browser's developer console (F12) for errors
-- Verify your PMTiles URL is correct and publicly accessible
-- Ensure the `style.json` file is in the same directory as your HTML file
-:::
+Zoom in close enough and you should see 3D buildings popping up in major cities.
 
-In the next chapter, we'll learn how to publish your map to the web using GitHub Pages.
+![Close-up of 3D buildings on an interactive map displayed in a web browser](_static/central-park.png)
+
+Congratulations! You've created an interactive map using your PMTiles basemap and MapLibre GL JS. What you do with it from here is up to you. If you're looking for a challenge, try customizing the style using [Maputnik](https://maputnik.github.io/) or adding a data layer on top of your basemap using GeoJSON or another vector tile source.
+
+If you'd like to learn how to deploy your map to the web using GitHub Pages, you might enjoy a chapter explaining that in our related lesson, [Go big with GitHub Actions](https://palewi.re/go-big-with-github-actions/).
