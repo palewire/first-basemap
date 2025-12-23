@@ -85,14 +85,14 @@ $(POLYGONS): $(CLASSIFIED_RASTER)
 # Create PMTiles from polygons
 $(POLYGONS_PMTILES): $(POLYGONS)
 	@echo "Creating polygons PMTiles with tippecanoe..."
-	@echo "⚠️  This may take 10-20 minutes for global data"
+	@echo "⚠️  This may take a few minutes"
 	tippecanoe -o $@ \
 		-zg \
 		--drop-densest-as-needed \
 		--coalesce-densest-as-needed \
 		-l population \
 		--minimum-zoom=0 \
-		--maximum-zoom=8 \
+		--maximum-zoom=2 \
 		-n "WorldPop $(COUNTRY) $(YEAR) Polygons" \
 		-A "Data from WorldPop" \
 		$(POLYGONS)
