@@ -15,7 +15,7 @@ This course is free. Previous experience working with Amazon Web Services and Gi
 
 If you have never made a GitHub Actions workflow before, you should review the first three chapters of [“Go big with GitHub Actions,”](https://palewi.re/docs/go-big-with-github-actions/) a previous course by [Ben Welsh](https://palewi.re/who-is-ben-welsh/), [Iris Lee](https://www.irisslee.com/) and [Dana Chiueh](https://dana.computer/).
 
-They are [“Introducing Actions”](https://palewi.re/docs/go-big-with-github-actions/what-are-actions.html), [“Introducing YAML”](https://palewi.re/docs/go-big-with-github-actions/what-is-yaml.html) and [“Creating your first Action“](https://palewi.re/docs/go-big-with-github-actions/getting-started.html)
+They are [“Introducing Actions,”](https://palewi.re/docs/go-big-with-github-actions/what-are-actions.html) [“Introducing YAML”](https://palewi.re/docs/go-big-with-github-actions/what-is-yaml.html) and [“Creating your first Action.“](https://palewi.re/docs/go-big-with-github-actions/getting-started.html) They will teach you the basics you need to work through this class.
 
 ## Table of contents
 
