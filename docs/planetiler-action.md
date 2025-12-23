@@ -457,7 +457,7 @@ Click on the workflow name, then click "Run workflow" in the upper right. You'll
 
 ![Starting the Planetiler workflow](_static/run-planetiler.png)
 
-At the time of this writing, it takes a little more than 90 minutes per product and the entire operation costs less than $3.
+At the time of this writing, it takes a little more than 90 minutes per product and the entire operation costs less than $10.
 
 When your tasks complete, click into the logs for each workflow's "Generate tiles" job and fish out the public URL from the upload step.
 
