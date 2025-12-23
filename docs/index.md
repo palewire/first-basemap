@@ -32,4 +32,4 @@ create-map
 
 ## About this class
 
-[Ben Welsh](https://palewi.re/who-is-ben-welsh/) prepared this guide in December 2025. GitHub’s Copilot, an AI-powered text generator, provided some assistance. The materials are available as free and [open source on GitHub](https://github.com/palewire/first-basemap). Some portions are borrowed from ["Go big with GitHub Actions"](https://palewi.re/docs/go-big-with-github-actions/).
+[Ben Welsh](https://palewi.re/who-is-ben-welsh/) prepared this guide in December 2025. GitHub’s Copilot, an AI-powered text generator, provided some assistance. The materials are available as free and [open source on GitHub](https://github.com/palewire/first-basemap). Some portions are borrowed from ["Go big with GitHub Actions."](https://palewi.re/docs/go-big-with-github-actions/)
