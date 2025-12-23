@@ -1,20 +1,20 @@
-# Creating an interactive map
+# Mapping your basemap
 
 Now that you've generated PMTiles files and uploaded them to S3, it's time to display them on a web page. We'll use [MapLibre GL JS](https://maplibre.org/maplibre-gl-js/docs/), an open-source library for rendering interactive maps in the browser.
 
 [![MapLibre GL JS logo](_static/maplibre.png)](https://maplibre.org/)
 
-MapLibre displays maps by combining your basemap's data with a style file that defines how the map presents labels, colors, lines and the other visual elements that make up a map.
+MapLibre displays maps by combining your basemap's data with a style file that defines how to present labels, colors, lines and the other visual elements that make up a map.
 
 We created the PMTiles files in the previous chapter, but we still need a style file before we can draw it on the page.
 
-You could write a style file from scratch, like we did at Reuters for our custom basemap, but it's much easier to start with an existing one. A good on ramp is [OSM Liberty](https://github.com/maputnik/osm-liberty),an open-source style designed for the [OpenMapTiles](https://openmaptiles.org/) data schema, which is exactly what Planetiler produces.
+You could write a style from scratch, like we did at Reuters for our custom basemap, but it's much easier to start with an existing one. A good on ramp is [OSM Liberty](https://github.com/maputnik/osm-liberty), an open-source style designed for the [OpenMapTiles](https://openmaptiles.org/) data schema, which is the same schema that Planetiler produces.
 
-OSM Liberty was created using [Maputnik](https://maputnik.github.io/), an open-source visual style editor for MapLibre styles.
+OSM Liberty was created using [Maputnik](https://maputnik.github.io/), a free visual editor for MapLibre styles.
 
 [![Maputnik logo](_static/maputnik.png)](https://maputnik.github.io/)
 
-You can use Maputnik to customize the style later. To start, you should download the [default style](https://raw.githubusercontent.com/maputnik/osm-liberty/gh-pages/style.json) and modify it to use our PMTiles files as its data source.
+You can use Maputnik to customize the look later. For now, you should start by downloading the [default OSM Liberty style](https://raw.githubusercontent.com/maputnik/osm-liberty/gh-pages/style.json), which will we will modify to point to your PMTiles files.
 
 You can find it at:
 
@@ -25,12 +25,20 @@ https://raw.githubusercontent.com/maputnik/osm-liberty/gh-pages/style.json
 Save the file as `style.json` in the root of your project directory. Open it up and find the `sources` section near the top. It will look something like this:
 
 ```json
-"sources": {
-  "openmaptiles": {
-    "type": "vector",
-    "url": "https://tiles.example.com/{z}/{x}/{y}.pbf"
-  }
-}
+  "sources": {
+    "openmaptiles": {
+      "type": "vector",
+      "url": "https://api.maptiler.com/tiles/v3-openmaptiles/tiles.json?key={key}"
+    },
+    "natural_earth_shaded_relief": {
+      "maxzoom": 6,
+      "tileSize": 256,
+      "tiles": [
+        "https://klokantech.github.io/naturalearthtiles/tiles/natural_earth_2_shaded_relief.raster/{z}/{x}/{y}.png"
+      ],
+      "type": "raster"
+    }
+  },
 ```
 
 Replace the URL with the base PMTiles URL created by your Actions workflow using the `pmtiles://` prefix
@@ -41,6 +49,14 @@ Replace the URL with the base PMTiles URL created by your Actions workflow using
   "openmaptiles": {
     "type": "vector",
     "url": "pmtiles://https://your-bucket.s3.amazonaws.com/planet-TIMESTAMP-base.pmtiles"
+  },
+  "natural_earth_shaded_relief": {
+    "maxzoom": 6,
+    "tileSize": 256,
+    "tiles": [
+      "https://klokantech.github.io/naturalearthtiles/tiles/natural_earth_2_shaded_relief.raster/{z}/{x}/{y}.png"
+    ],
+    "type": "raster"
   }
 }
 ```
@@ -162,7 +178,7 @@ The first set of highlighted lines register the PMTiles protocol with MapLibre. 
 
 The second highlight is the style property in the map configuration, which directs MapLibre to use the `style.json` file you just modified.
 
-To test your map open a terminal in your project directory and start a simple HTTP server to serve your files.
+To test your map, open a terminal in your project directory and start a simple HTTP server to serve your files.
 
 If you have Python installed, the easiest method is:
 
@@ -178,6 +194,6 @@ Zoom in close enough and you should see 3D buildings popping up in major cities.
 
 ![Close-up of 3D buildings on an interactive map displayed in a web browser](_static/central-park.png)
 
-Congratulations! You've created an interactive map using your PMTiles basemap and MapLibre GL JS. What you do with it from here is up to you. If you're looking for a challenge, try customizing the style using [Maputnik](https://maputnik.github.io/) or adding a data layer on top of your basemap using GeoJSON or another vector tile source.
+Congratulations! You've created an interactive map using your PMTiles basemap and MapLibre GL JS. What you do with it from here is up to you. If you're looking for a challenge, try customizing the style using [Maputnik](https://maputnik.github.io/) or adding a data layer on top of your basemap using GeoJSON or another source. You can even add data layers stored as their own PMTiles files.
 
-If you'd like to learn how to deploy your map to the web using GitHub Pages, you might enjoy a chapter explaining that in our related lesson, [Go big with GitHub Actions](https://palewi.re/docs/go-big-with-github-actions/).
+If you'd like to learn how to deploy your map to the web using [GitHub Pages](https://docs.github.com/en/pages), another powerful GitHub service, you might enjoy our related lesson, [Go big with GitHub Actions](https://palewi.re/docs/go-big-with-github-actions/deploy.html).

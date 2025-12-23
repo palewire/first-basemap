@@ -1,4 +1,4 @@
-# Scaling up with AWS
+# Scaling with AWS
 
 GitHub Actions can do a lot, but sometimes it's simply not enough. The free service has limits on disk space, processing units and how long jobs can run.
 
@@ -117,6 +117,14 @@ Now make sure there are rules that allow for "HTTP" traffic on port 80 and "HTTP
 Before you go we need to save the security group ID for later. You will find it at the top of the profile page. Copy and paste it to the same place you saved the subnet ID.
 
 ![EC2 search](_static/copy-sg.png)
+
+## Introducing Amazone S3
+
+Amazon Simple Storage Service, commonly called S3, is AWS's file hosting service. Think of it as a hard drive in the cloud where you can store and serve files over the web. Unlike EC2, which provides computing power, S3 simply stores files and makes them accessible via URLs.
+
+We'll use S3 to host our finished PMTiles files. Once uploaded, they'll be publicly accessible and can be loaded directly into web maps without any server infrastructure.
+
+You don't need to do anything special to set up S3 for this tutorial. The Action we'll use later will create a storage bucket automatically. But if you want to explore S3 on your own, you can find it by searching for "S3" in the AWS console bar.
 
 ## Creating a Personal Access Token
 

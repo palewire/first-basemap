@@ -1,4 +1,4 @@
-# Building the basemap
+# Building your PMTiles
 
 Now that we have configured our AWS account and learned how to create custom EC2 runners with GitHub Actions, we're ready to put everything together and build our global basemap.
 
@@ -74,7 +74,7 @@ env:
 
 You can keep the EC2 settings as is. We know they'll work. But notice that we've bumped up the `EC2_VOLUME_SIZE` to 1,000 gigabytes. Planetiler needs a lot of disk space for temporary files, so we're giving it more room to work.
 
-Create the first job, which starts our EC2 runner. This should look familiar from the previous chapter, with some important additions in the `pre-runner-script` section:
+Create the first job, which starts our EC2 runner. This should look familiar from the previous chapter, with some important additions in the `pre-runner-script` section.
 
 {emphasize-lines="27-48"}
 ```yaml
@@ -128,7 +128,7 @@ jobs:
             fi
 ```
 
-The server is seeded with the Java programming language required by Planetiler, as well as the [AWS command-line interface](https://aws.amazon.com/cli/) needed to upload the finished tiles to S3. We're also included a trick that configures the server to use faster [NVMe storage](https://en.wikipedia.org/wiki/NVM_Express) for reading and writing files.
+The server is seeded with the Java programming language required by Planetiler, as well as the [AWS command-line interface](https://aws.amazon.com/cli/) needed to upload the finished tiles to S3. We've also included a trick that configures the server to use faster [NVMe storage](https://en.wikipedia.org/wiki/NVM_Express) for reading and writing files.
 
 Now our main event: the job that generates the map tiles. Let's add it piece by piece.
 
@@ -142,9 +142,9 @@ First, the job configuration:
     timeout-minutes: 240  # Four hours
 ```
 
-The `needs: start-runner` tells GitHub Actions to wait for the first job to complete before starting this one. The `runs-on` uses the label from the EC2 runner we just started. The `timeout-minutes` is set to 240 (four hours), which should be enough time for Planetiler to process the planet file.
+This time the `timeout-minutes` is set to 240 minutes, or four hours, which should be enough time for Planetiler to process the planet file.
 
-The first step configures AWS credentials, just like before:
+The first step configures AWS credentials, just like before.
 
 {emphasize-lines="6-12"}
 ```yaml
@@ -220,7 +220,7 @@ The `base` product includes all zoom levels from 0 to 15, while the `buildings` 
 The variables are exported to `$GITHUB_ENV`, which makes them available to all subsequent steps in the job.
 
 ```{note}
-These settings were developed by our Reuters team through an iterative process of trial and error. As with all design, your judgement may differ. You should feel free to adjust the parameters to suit your own needs and preferences. Making a new map is as easy as changing a few numbers and re-running the workflow!
+These settings were developed by our Reuters team through an iterative process of trial and error. As with all design, your judgement may differ. You should feel free to adjust the parameters to suit your own needs and preferences. Making a new map is as easy as changing a few numbers and re-running the workflow.
 ```
 
 The next step downloads the latest version of Planetiler from GitHub by scraping the releases API to find the most recent JAR file.
@@ -246,7 +246,7 @@ The next step downloads the latest version of Planetiler from GitHub by scraping
 
 The `working-directory: /mnt/planetiler` tells this step to run in our fast NVMe storage directory. The verification step runs `--help` to make sure Java can execute Planetiler properly.
 
-Now the core step that generates the map tiles. It begins by gradually constructing the Planetiler command line statement that will kickstart the building based on the selected product and simplification parameters.
+Now the core step that generates the map tiles. It begins by gradually constructing the command line statement that will kickstart Planetiler based on the selected parameters.
 
 ```yaml
 
@@ -319,9 +319,9 @@ Now the core step that generates the map tiles. It begins by gradually construct
           echo "OUTPUT_FILE=$OUTPUT_FILE" >> $GITHUB_ENV
 ```
 
-This is a complex operation that includes technical details that aren't all worth diving into here. But there are several key customizations that you may want to adjust to fit your needs. Here are the most important ones:
+This is a complex operation that includes technical details that aren't worth diving into here. But there are several key customizations that you may want to adjust to fit your needs.
 
-The `TIMESTAMP` setting is combined with the product name to create a unique `OUTPUT_FILE` setting for each run. This prevents overwriting previous files and makes it easy to track different builds. However, if you prefer a consistent filename, you could replace this with a fixed name like `planet-${{ inputs.product }}.pmtiles` or another pattern that you prefer.
+The `TIMESTAMP` setting is combined with the product name to create a unique `OUTPUT_FILE` setting for each run. This prevents overwriting previous files and makes it easy to track builds over time. However, if you prefer a consistent filename, you could replace this with a fixed path like `planet-${{ inputs.product }}.pmtiles` or another pattern that you prefer.
 
 The `--languages=en` flag means that Planetiler will include only English names to reduce file size. You could add more with `--languages=en,es,fr`, if you preferred, or omit the flag entirely to include all available languages.
 
@@ -395,7 +395,7 @@ Once that lengthy process is complete, we will need to upload the finished PMTil
           echo "✓ CORS configured"
 ```
 
-This step checks if the bucket exists, and creates it if not. It also ensures that the bucket allows for public access over the web and configures CORS so that any web page can access the tiles. If you want to limit access to your tiles, you should modify or remove these settings accordingly.
+This step looks to see if the bucket is already there, and creates it if not. It also allows for public access over the web and configures the file to allow for [cross-origin resource sharing](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS) so that any web page can access the tiles. If you want to limit access to your tiles, you should modify these settings accordingly.
 
 Finally, we upload the finished tiles.
 
@@ -453,18 +453,13 @@ Once you've saved the complete workflow file to `.github/workflows/build-planeti
 
 Navigate to your repository's Actions tab. You should see "Build Planetiler" in the list of workflows.
 
-Click on the workflow name, then click "Run workflow" in the upper right. You'll see a dropdown where you can choose which product to build:
-
-* Select "buildings" for a buildings-only layer
-* Select "base" for a complete basemap without buildings
-
-Click the green "Run workflow" button to start the process and off you go.
+Click on the workflow name, then click "Run workflow" in the upper right. You'll see a dropdown where you can choose which product to build. Click the green "Run workflow" button to start the process and off you go.
 
 ![Starting the Planetiler workflow](_static/run-planetiler.png)
 
-At the time of this writing, it takes a little more than 90 minutes per product to complete and the entire operation costs less than $3.
+At the time of this writing, it takes a little more than 90 minutes per product and the entire operation costs less than $3.
 
-When your tasks complete, open up the logs for each workflow's "Generate tiles" job and find the public URL printed at the end of the upload step.
+When your tasks complete, click into the logs for each workflow's "Generate tiles" job and fish out the public URL from the upload step.
 
 ![Completed Planetiler workflow with public URL](_static/planetiler-complete.png)
 
