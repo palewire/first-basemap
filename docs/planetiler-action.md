@@ -16,7 +16,7 @@ The tool offers [extensive configuration options](https://github.com/onthegomap/
 
 GitHub's standard Actions runners have fairly limited resources, and they're not allowed to run longer than six hours. While that might be suitable for most tasks, it's simply not enough power for this job.
 
-Planetiler needs lots of RAM to efficiently process the full planet file, multiple high-speed CPUs to parallelize the work and hundreds of gigabytes of fast disk space for temporary files. Given enough resources, it can complete map out the planet in a few hours, but on a small server that same task could take days or even weeks.
+Planetiler needs lots of RAM to efficiently process the full planet file, multiple high-speed CPUs to parallelize the work and hundreds of gigabytes of fast disk space for temporary files. Given enough resources, it can map out the planet in a few hours, but on a small server that same task could take days or even weeks.
 
 ## Creating the Planetiler workflow
 
@@ -70,7 +70,7 @@ env:
 
  You should customize the `AWS_SUBNET_ID` and `AWS_SECURITY_GROUP_ID` values to match your AWS setup as in the previous chapter.
 
- The `AWS_S3_BUCKET_NAME` is a new setting where you should place the name of the file hosting bucket where the finished PMTiles files will be stored. This will need to be something unique across all AWS users, so consider using a name that incorporates your GitHub username or your organization's name.
+ The `AWS_S3_BUCKET_NAME` is a new setting where you should place the name of the file hosting bucket where PMTiles files will be stored. This will need to be something unique across all AWS users, so consider using a name that incorporates your GitHub username or your organization's name.
 
 You can keep the EC2 settings as is. We know they'll work. But notice that we've bumped up the `EC2_VOLUME_SIZE` to 1,000 gigabytes. Planetiler needs a lot of disk space for temporary files, so we're giving it more room to work.
 
@@ -321,6 +321,8 @@ Now the core step that generates the map tiles. It begins by gradually construct
 
 This is a complex operation that includes technical details that aren't all worth diving into here. But there are several key customizations that you may want to adjust to fit your needs. Here are the most important ones:
 
+The `TIMESTAMP` setting is combined with the product name to create a unique `OUTPUT_FILE` setting for each run. This prevents overwriting previous files and makes it easy to track different builds. However, if you prefer a consistent filename, you could replace this with a fixed name like `planet-${{ inputs.product }}.pmtiles` or another pattern that you prefer.
+
 The `--languages=en` flag means that Planetiler will include only English names to reduce file size. You could add more with `--languages=en,es,fr`, if you preferred, or omit the flag entirely to include all available languages.
 
 The `--exclude-layers=housenumber,building,poi` flag for the `base` product removes not just building footprints but also house numbers and the massive database of [points of interest packaged with OpenStreetMap](https://wiki.openstreetmap.org/wiki/Points_of_interest). This helps keep the file size down for a general-purpose basemap. However, if you wanted to style and include points of interest, you should remove `poi` from the exclusion list.
@@ -329,10 +331,7 @@ The `--exclude-layers=housenumber,building,poi` flag for the `base` product remo
 All of the command-line options are documented in the [Planetiler](https://github.com/onthegomap/planetiler/blob/main/config-example.properties) repository. You can customize these settings further to suit your project.
 ```
 
-
-#### Setting up S3
-
-Before we can upload our tiles, we need to ensure the S3 bucket exists and is configured correctly:
+Once that lengthy process is complete, we will need to upload the finished PMTiles file to our S3 bucket. But first, we need to ensure the bucket exists and is configured correctly.
 
 ```yaml
       - name: Ensure S3 bucket exists
@@ -396,17 +395,9 @@ Before we can upload our tiles, we need to ensure the S3 bucket exists and is co
           echo "✓ CORS configured"
 ```
 
-This step does several important things:
+This step checks if the bucket exists, and creates it if not. It also ensures that the bucket allows for public access over the web and configures CORS so that any web page can access the tiles. If you want to limit access to your tiles, you should modify or remove these settings accordingly.
 
-1. **Bucket creation**: Checks if the bucket exists, and creates it if not. Note that `us-east-1` requires special handling — it doesn't use a `LocationConstraint`.
-
-2. **Public access**: Disables AWS's block public access settings and adds a bucket policy that allows anyone to read files. This is necessary for the map to be accessible from web browsers.
-
-3. **CORS configuration**: Enables Cross-Origin Resource Sharing, which allows web pages from different domains to access the tiles.
-
-#### Uploading to S3
-
-Finally, we upload the finished tiles:
+Finally, we upload the finished tiles.
 
 ```yaml
       - name: Upload to S3 bucket
@@ -426,17 +417,11 @@ Finally, we upload the finished tiles:
           echo "Public URL: https://${{ env.AWS_S3_BUCKET_NAME }}.s3.amazonaws.com/${OUTPUT_FILE}"
 ```
 
-The upload includes:
+The upload sets a day-long cache and packages some metadata for tracking purposes. At the end it will print the public URL where the tiles can be accessed.
 
-* **INTELLIGENT_TIERING**: This S3 storage class automatically moves files between access tiers based on usage patterns, optimizing costs
-* **cache-control**: Sets the max-age to 86400 seconds (1 day), which tells browsers and CDNs to cache the tiles
-* **metadata**: Tags the file with the GitHub run ID and product type for tracking
-* **Public URL**: Prints the URL where the tiles can be accessed
+Finally, we need to shut down the EC2 instance with a third step, just as in the previous chapter. Note that we've changed the `needs` clause to include the new `generate-tiles` job.
 
-### Step 6: The stop-runner job
-
-Finally, we need to shut down the EC2 instance:
-
+{emphasize-lines="5"}
 ```yaml
   stop-runner:
     name: Stop self-hosted EC2 runner
@@ -462,46 +447,25 @@ Finally, we need to shut down the EC2 instance:
           ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
 ```
 
-The `if: ${{ always() }}` clause ensures this job runs whether the tile generation succeeded or failed. This is critical — you don't want to leave an expensive EC2 instance running if something goes wrong!
+Once you've saved the complete workflow file to `.github/workflows/build-planetiler.yaml`, commit it to your repository and push to GitHub. You can see our full, working example of the file in [this project's repository](https://github.com/palewire/first-basemap/blob/main/.github/workflows/build-planetiler.yaml).
 
-## Running the workflow
+## Running the Planetiler workflow
 
-Once you've saved the complete workflow file to `.github/workflows/build-planetiler.yaml`, commit it to your repository. Then navigate to the Actions tab and you should see "Build Planetiler" in the list of workflows.
+Navigate to your repository's Actions tab. You should see "Build Planetiler" in the list of workflows.
 
 Click on the workflow name, then click "Run workflow" in the upper right. You'll see a dropdown where you can choose which product to build:
 
 * Select "buildings" for a buildings-only layer
 * Select "base" for a complete basemap without buildings
 
-Click the green "Run workflow" button to start the process. The workflow will:
+Click the green "Run workflow" button to start the process and off you go.
 
-1. Start the EC2 instance (takes about 2-3 minutes)
-2. Download Planetiler and the planet file (takes about 10-30 minutes depending on network speed)
-3. Process the data and generate tiles (takes about 2-3 hours for the full planet)
-4. Upload the tiles to S3 (takes about 5-15 minutes depending on file size)
-5. Stop the EC2 instance
+![Starting the Planetiler workflow](_static/run-planetiler.png)
 
-You can monitor the progress in the Actions tab. The logs will show you exactly what Planetiler is doing at each stage.
+At the time of this writing, it takes a little more than 90 minutes per product to complete and the entire operation costs less than $3.
 
-## Cost considerations
+When your tasks complete, open up the logs for each workflow's "Generate tiles" job and find the public URL printed at the end of the upload step.
 
-Running this workflow will incur AWS costs:
+![Completed Planetiler workflow with public URL](_static/planetiler-complete.png)
 
-* **EC2**: An `r5d.8xlarge` instance costs about $2.88 per hour in us-east-1. A typical run takes 3-4 hours, so expect about $10-12 per build.
-* **S3 storage**: The finished PMTiles file will be 50-100 GB depending on your configuration. S3 standard storage costs $0.023 per GB per month, so about $1-2/month for storage.
-* **S3 bandwidth**: The first 100 GB of data transfer out is free each month. After that, it costs about $0.09 per GB.
-* **Data transfer**: Downloading the planet file from OpenStreetMap is free, but it's about 70 GB of data.
-
-For occasional builds, the total cost is quite reasonable — probably $15-20/month if you rebuild once a week. That's much cheaper than commercial mapping services at scale.
-
-## Next steps
-
-Now that you have a working Planetiler workflow, you can customize it in many ways:
-
-* Adjust the zoom levels to generate more or less detail
-* Add more languages to the `--languages` parameter
-* Change the simplification parameters to balance file size vs. detail
-* Add custom data sources beyond OpenStreetMap
-* Generate tiles for specific regions instead of the entire planet
-
-In the next chapter, we'll learn how to display these tiles in an interactive web map using MapLibre GL JS.
+In the next chapter, we'll learn how to integrate those URLs into an interactive web map using MapLibre GL JS.
