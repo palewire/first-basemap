@@ -1,4 +1,4 @@
-# Mapping your basemap
+# Styling your basemap
 
 Now that you've generated PMTiles files and uploaded them to S3, it's time to display them on a web page. We'll use [MapLibre GL JS](https://maplibre.org/maplibre-gl-js/docs/), an open-source library for rendering interactive maps in the browser.
 

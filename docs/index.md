@@ -13,6 +13,10 @@ Create a shockingly fast and virtually free interactive map of the world using O
 
 This course is free. Previous experience working with Amazon Web Services and GitHub Actions will be useful, but anyone with a good attitude is qualified.
 
+If you have never made a GitHub Actions workflow before, you should review the first three chapters of [“Go big with GitHub Actions,”](https://palewi.re/docs/go-big-with-github-actions/) a previous course by [Ben Welsh](https://palewi.re/who-is-ben-welsh/), [Iris Lee](https://www.irisslee.com/) and [Dana Chiueh](https://dana.computer/).
+
+They are [“Introducing Actions”](https://palewi.re/docs/go-big-with-github-actions/what-are-actions.html), [“Introducing YAML”](https://palewi.re/docs/go-big-with-github-actions/what-is-yaml.html) and [“Creating your first Action“](https://palewi.re/docs/go-big-with-github-actions/getting-started.html)
+
 ## Table of contents
 
 ```{toctree}
@@ -21,9 +25,6 @@ This course is free. Previous experience working with Amazon Web Services and Gi
 :numbered:
 
 what-you-will-make
-what-are-actions
-what-is-yaml
-create-actions
 configure-aws
 planetiler-action
 create-map
@@ -31,6 +32,4 @@ create-map
 
 ## About this class
 
-[Ben Welsh](https://palewi.re/who-is-ben-welsh/) prepared this guide in December 2025. GitHub’s Copilot, an AI-powered text generator, provided some assistance. The materials are available as free and [open source on GitHub](https://github.com/palewire/first-basemap).
-
-Some portions are borrowed from ["Go big with GitHub Actions"](https://palewi.re/go-big-with-github-actions/), a course that [Ben Welsh](https://palewi.re/who-is-ben-welsh/), [Iris Lee](https://www.irisslee.com/) and [Dana Chiueh](https://dana.computer/) created for a training session at the National Institute for Computer-Assisted Reporting’s March 2025 conference in Minneapolis.
+[Ben Welsh](https://palewi.re/who-is-ben-welsh/) prepared this guide in December 2025. GitHub’s Copilot, an AI-powered text generator, provided some assistance. The materials are available as free and [open source on GitHub](https://github.com/palewire/first-basemap). Some portions are borrowed from ["Go big with GitHub Actions"](https://palewi.re/docs/go-big-with-github-actions/).

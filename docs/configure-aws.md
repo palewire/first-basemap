@@ -1,4 +1,4 @@
-# Scaling with AWS
+# Scaling your Actions
 
 GitHub Actions can do a lot, but sometimes it's simply not enough. The free service has limits on disk space, processing units and how long jobs can run.
 
@@ -118,7 +118,7 @@ Before you go we need to save the security group ID for later. You will find it 
 
 ![EC2 search](_static/copy-sg.png)
 
-## Introducing Amazone S3
+## Introducing Amazon S3
 
 Amazon Simple Storage Service, commonly called S3, is AWS's file hosting service. Think of it as a hard drive in the cloud where you can store and serve files over the web. Unlike EC2, which provides computing power, S3 simply stores files and makes them accessible via URLs.
 

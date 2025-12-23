@@ -67,14 +67,51 @@ Here's an example of the basemap you will make displayed using the [MapLibre GL]
     map.on('load', () => {
         map.setProjection({ type: 'globe' });
 
+        map.addSource('population-contours', {
+            type: 'vector',
+            url: 'pmtiles://https://first-basemap.s3.amazonaws.com/worldpop_global_2020_contours.pmtiles',
+            maxzoom: 6,
+        });
+
+        // Draw contour lines with color by population
+        map.addLayer({
+            id: 'population-contours',
+            type: 'line',
+            source: 'population-contours',
+            'source-layer': 'population',
+            filter: ['>', ['get', 'population'], 0], // Filter out zero values
+            paint: {
+                'line-color': [
+                'interpolate',
+                ['linear'],
+                ['get', 'population'],
+                1000,    '#fee5d9',  // Very light
+                5000,    '#fcae91',
+                10000,   '#fb6a4a',
+                25000,   '#de2d26',
+                50000,   '#a50f15'   // Dark red
+                ],
+                'line-width': [
+                'interpolate',
+                ['linear'],
+                ['get', 'population'],
+                1000,  0.5,
+                10000, 1,
+                50000, 2,
+                100000, 3
+                ],
+                'line-opacity': 0.8
+            }
+       });
+
         const spinner = createGlobeSpinner(map);
-        spinner.start();
+        //spinner.start();
 
         // Optional: pause on user interaction, resume after
-        map.on('mousedown', () => spinner.stop());
-        map.on('touchstart', () => spinner.stop());
-        map.on('mouseup', () => spinner.start());
-        map.on('touchend', () => spinner.start());
+        //map.on('mousedown', () => spinner.stop());
+        //map.on('touchstart', () => spinner.stop());
+        //map.on('mouseup', () => spinner.start());
+        //map.on('touchend', () => spinner.start());
     });
 </script>
 ```
