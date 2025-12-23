@@ -4,10 +4,9 @@ Create a shockingly fast and virtually free interactive map of the world using O
 
 ## What you will learn
 
-* How to create a [GitHub](https://github.com/) repository that can run cloud-computing tasks using [GitHub Actions](https://docs.github.com/en/actions).
-* How to configure an [Amazon Web Services](https://aws.amazon.com/) account to allow GitHub Actions to use large-scale, long-running servers.
-* How to configure [Planetiler](https://github.com/onthegomap/planetiler) to download [OpenStreetMap](https://www.openstreetmap.org/) data and convert it into map tiles stored in a single [PMTiles](https://github.com/protomaps/PMTiles) file.
-* How to create a simple web page that displays the map using [MapLibre GL JS](https://maplibre.org/projects/maplibre-gl-js/).
+* How to link a free [GitHub Actions](https://docs.github.com/en/actions) task runner to large-scale, long-running servers using [Amazon Web Services](https://aws.amazon.com/).
+* How to configure [Planetiler](https://github.com/onthegomap/planetiler) to download [OpenStreetMap](https://www.openstreetmap.org/) data and convert it to the [PMTiles](https://github.com/protomaps/PMTiles) file.
+* How to style and display the map using [MapLibre GL JS](https://maplibre.org/projects/maplibre-gl-js/).
 
 ## Who can take it
 

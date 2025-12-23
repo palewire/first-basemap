@@ -25,7 +25,7 @@ Here's an example of the basemap you will make displayed using the [MapLibre GL]
         center: [-98.5795, 25],
         zoom: 1.5,
         minZoom: 1,
-        maxZoom: 15,
+        maxZoom: 2,
         attributionControl: false,
         projection: { type: 'globe' }
     });
