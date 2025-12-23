@@ -180,4 +180,4 @@ Zoom in close enough and you should see 3D buildings popping up in major cities.
 
 Congratulations! You've created an interactive map using your PMTiles basemap and MapLibre GL JS. What you do with it from here is up to you. If you're looking for a challenge, try customizing the style using [Maputnik](https://maputnik.github.io/) or adding a data layer on top of your basemap using GeoJSON or another vector tile source.
 
-If you'd like to learn how to deploy your map to the web using GitHub Pages, you might enjoy a chapter explaining that in our related lesson, [Go big with GitHub Actions](https://palewi.re/go-big-with-github-actions/).
+If you'd like to learn how to deploy your map to the web using GitHub Pages, you might enjoy a chapter explaining that in our related lesson, [Go big with GitHub Actions](https://palewi.re/docs/go-big-with-github-actions/).
