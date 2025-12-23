@@ -1,1 +1,1 @@
-# Deploy the map to GitHub Pages
+# Publishing with GitHub Pages

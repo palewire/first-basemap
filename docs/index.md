@@ -28,7 +28,6 @@ create-actions
 configure-aws
 planetiler-action
 create-map
-customize-map
 deploy-map
 ```
 
