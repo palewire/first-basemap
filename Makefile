@@ -87,12 +87,16 @@ $(POLYGONS_PMTILES): $(POLYGONS)
 	@echo "Creating polygons PMTiles with tippecanoe..."
 	@echo "⚠️  This may take a few minutes"
 	tippecanoe -o $@ \
-		-zg \
-		--drop-densest-as-needed \
-		--coalesce-densest-as-needed \
 		-l population \
-		--minimum-zoom=0 \
-		--maximum-zoom=2 \
+		-Z 0 \
+		-z 2 \
+		--force \
+		--no-feature-limit \
+		--no-tile-size-limit \
+		--no-simplification \
+		--drop-rate=0 \
+		--cluster-distance=0 \
+		--preserve-input-order \
 		-n "WorldPop $(COUNTRY) $(YEAR) Polygons" \
 		-A "Data from WorldPop" \
 		$(POLYGONS)

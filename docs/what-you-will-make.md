@@ -24,10 +24,10 @@ Here's an example of the basemap you will make displayed using the [MapLibre GL]
         style: '_static/style.json',
         center: [-98.5795, 25],
         zoom: 1.5,
-        minZoom: 1,
-        maxZoom: 2,
+        minZoom: 1.5,
+        maxZoom: 1.5,
         attributionControl: false,
-        projection: { type: 'globe' }
+        interactive: false
     });
 
    // Globe rotation
@@ -66,21 +66,8 @@ Here's an example of the basemap you will make displayed using the [MapLibre GL]
     // Start spinning once the map is ready
     map.on('load', () => {
         map.setProjection({ type: 'globe' });
-
-        map.addSource('population-contours', {
-            type: 'vector',
-            url: 'pmtiles://https://first-basemap.s3.amazonaws.com/worldpop_global_2020_contours.pmtiles',
-            maxzoom: 6,
-        });
-
         const spinner = createGlobeSpinner(map);
         spinner.start();
-
-        // Optional: pause on user interaction, resume after
-        map.on('mousedown', () => spinner.stop());
-        map.on('touchstart', () => spinner.stop());
-        map.on('mouseup', () => spinner.start());
-        map.on('touchend', () => spinner.start());
     });
 </script>
 ```
