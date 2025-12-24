@@ -10,7 +10,7 @@ When you need more horsepower, one solution is to link Actions up with more powe
 
 [Amazon Web Services](https://en.wikipedia.org/wiki/Amazon_Web_Services) is a cloud platform, commonly referred to as AWS, that offers almost every form of computing power for lease. It includes a service known as [Elastic Compute Cloud](https://en.wikipedia.org/wiki/Amazon_Elastic_Compute_Cloud), or EC2, which spins up servers of all shapes and sizes. You can use to run jobs that exceed the limits of GitHub's resources.
 
-It's a great combination. You get the nearly limitless capacity of Amazon without losing the convenience of the GitHub Actions interface.
+It's a great combination. You get the nearly limitless capacity of AWS without losing the convenience of the GitHub Actions interface.
 
 In other circumstances, we've used this technique to:
 
@@ -20,11 +20,11 @@ In other circumstances, we've used this technique to:
 
 Though, there is bad news here. You will have to pay for it. Jeff Bezos didn't get rich by giving things away.
 
-The first step is to create an Amazon Web Services account, if you don't already have one. Go to [aws.amazon.com](https://aws.amazon.com/) and click the button that says "Create an AWS account" in the upper right corner.
+The first step is to create an AWS account, if you don't already have one. Go to [aws.amazon.com](https://aws.amazon.com/) and click the button that says "Create an AWS account" in the upper right corner.
 
 ![AWS splash page](_static/aws-splash.png)
 
-You'll provide a root email address and a name for the account. And then you'll be asked to verify your email. Then you'll enter a password, contact information and a payment method. You'll also have to verify your phone number. Once that's completed, you'll be congratulated for your wherewithal.
+You'll provide a root email address and a name for the account. Then you'll be asked to verify your email. Then you'll enter a password, contact information and a payment method. You'll also have to verify your phone number. Once that's completed, you'll be congratulated for your wherewithal.
 
 ![AWS congrats](_static/aws-congrats.png)
 
@@ -32,7 +32,7 @@ Now you're ready to sign into the AWS Management Console, where you can access a
 
 ![AWS console](_static/aws-console.png)
 
-Accessing Amazon Web Services with GitHub Actions requires that you first establish an API key with permission to access the services you want to use. You can do that by clicking on the pulldown menu in the far upper right corner of the console and selecting "Security Credentials."
+Accessing AWS with GitHub Actions requires that you first establish an API key with permission to access the services you want to use. You can do that by clicking on the pulldown menu in the far upper right corner of the console and selecting "Security Credentials."
 
 ![Settings pulldown](_static/account-menu.png)
 
@@ -52,7 +52,7 @@ Copy and paste them into a text file for safekeeping. You will not be able to se
 
 Next we will need to configure your account's networking to allow for EC2 servers to communicate with GitHub. This is done by creating a virtual private cloud, known as a VPC, with a subnet that allows for public access.
 
-Return to the search bar at the top of the Amazon console and search for VPC.
+Return to the search bar at the top of the AWS console and search for VPC.
 
 ![VPC search](_static/search-vpc.png)
 
@@ -120,7 +120,7 @@ Before you go we need to save the security group ID for later. You will find it 
 
 ## Introducing Amazon S3
 
-Amazon Simple Storage Service, commonly called S3, is AWS's file hosting service. Think of it as a hard drive in the cloud where you can store and serve files over the web. Unlike EC2, which provides computing power, S3 simply stores files and makes them accessible via URLs.
+Amazon's [Simple Storage Service](https://en.wikipedia.org/wiki/Amazon_S3), commonly called S3, is AWS's file hosting service. Think of it as a hard drive in the cloud where you can store and serve files over the web. Unlike EC2, which provides computing power, S3 simply stores files and makes them accessible via URLs.
 
 We'll use S3 to host our finished PMTiles files. Once uploaded, they'll be publicly accessible and can be loaded directly into web maps without any server infrastructure.
 
@@ -292,7 +292,7 @@ env:
 
 You should enter the subnet ID and security group ID that you saved earlier in the `AWS_SUBNET_ID` and `AWS_SECURITY_GROUP_ID` fields.
 
-You'll also see the configuration options for the EC2 server, which I've filled with settings that will work for most Actions. The `EC2_IMAGE_ID` is the unique identifier of the operating system that Amazon will install on the server, which is commonly known as the AMI. The `EC2_INSTANCE_TYPE` is the size of the server to start up. You can find the menu of available hardware [on the Amazon site](https://aws.amazon.com/ec2/instance-types/). The `EC2_VOLUME_SIZE` is how much disk space you want to allocate to the server, measured in gigabytes. The default I set is 50 GB, which should be sufficient for most tasks. You can change any of these values to suit your needs.
+You'll also see the configuration options for the EC2 server, which I've filled with settings that will work for most Actions. The `EC2_IMAGE_ID` is the unique identifier of the operating system that AWS will install on the server, which is commonly known as the AMI. The `EC2_INSTANCE_TYPE` is the size of the server to start up. You can find the menu of available hardware [on the AWS site](https://aws.amazon.com/ec2/instance-types/). The `EC2_VOLUME_SIZE` is how much disk space you want to allocate to the server, measured in gigabytes. The default I set is 50 GB, which should be sufficient for most tasks. You can change any of these values to suit your needs.
 
 Then the `concurrency` section ensures that only one instance of this workflow will run at a time. If you try to start a second one while the first is still running, the first will be canceled.
 
@@ -302,7 +302,7 @@ concurrency:
   cancel-in-progress: true
 ```
 
-After that, the workflow is essentially a three-step process. The first step uses a traditional Actions server to connect with Amazon and fire up a new EC2 instance with your specified configuration.
+After that, the workflow is essentially a three-step process. The first step uses a traditional Actions server to connect with AWS and fire up a new EC2 instance with your specified configuration.
 
 This example assumes you are using a machine image based on Ubuntu 24.04 LTS. If you end up using an image of another operating system, you will need to change the `pre-runner-script` to install the dependencies necessary to communicate with GitHub and run Actions.
 
@@ -394,7 +394,7 @@ And then the third step is to shut down the server when you're finished. Because
 ```
 
 ```{note}
-The `if` clause is very important. Why? Because if you forget to shut down the server, it will keep running and racking up charges. Amazon charges by the hour, so if you leave a server running unmonitored you could soon end up with a hefty bill.
+The `if` clause is very important. Why? Because if you forget to shut down the server, it will keep running and racking up charges. AWS charges by the hour, so if you leave a server running unmonitored you could soon end up with a hefty bill.
 
 It's a good idea to routinely check in on the AWS console to make sure you don't have any orphaned servers running. You can do that by going to the EC2 panel and selecting "Instances" from the left-hand menu. Any leftover servers can be terminated from there.
 ```
