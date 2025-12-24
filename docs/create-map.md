@@ -8,7 +8,7 @@ MapLibre displays maps by combining your basemap's data with a style file that d
 
 We created the PMTiles files in the previous chapter, but we still need a style file before we can draw it on the page.
 
-You could write a style from scratch, like we did at Reuters for our custom basemap, but it's much easier to start with an existing one. A good on ramp is [OSM Liberty](https://github.com/maputnik/osm-liberty), an open-source style designed for the [OpenMapTiles](https://openmaptiles.org/) data schema, which is the same schema that Planetiler produces.
+You could write a style from scratch, like we did at Reuters for our custom basemap, but it's much easier to start with an existing one. A good on ramp is [OSM Liberty](https://github.com/maputnik/osm-liberty), an open-source style designed to fit the [OpenMapTiles](https://openmaptiles.org/) data schema, which is the same system that Planetiler produces.
 
 OSM Liberty was created using [Maputnik](https://maputnik.github.io/), a free visual editor for MapLibre styles.
 
@@ -194,6 +194,6 @@ Zoom in close enough and you should see 3D buildings popping up in major cities.
 
 ![Browser map zoomed into urban area showing 3D building extrusions rendered from buildings PMTiles layer](_static/central-park.png)
 
-Congratulations! You've created an interactive map using your PMTiles basemap and MapLibre GL JS. What you do with it from here is up to you. If you're looking for a challenge, try customizing the style using [Maputnik](https://maputnik.github.io/) or adding a data layer on top of your basemap using GeoJSON or another source. You can even add data layers stored as their own PMTiles files.
+Congratulations! You've created an interactive map using your PMTiles basemap and MapLibre GL JS. What you do with it from here is up to you. If you're looking for a challenge, try customizing the style using [Maputnik](https://maputnik.github.io/) or adding a data layer on top of your basemap using GeoJSON. You can even add data layers stored as their own PMTiles files.
 
-If you'd like to learn how to deploy your map to the web using [GitHub Pages](https://docs.github.com/en/pages), another powerful GitHub service, you might enjoy our related lesson, [Go big with GitHub Actions](https://palewi.re/docs/go-big-with-github-actions/deploy.html).
+If you'd like to learn how to deploy your map to the web using [GitHub Pages](https://docs.github.com/en/pages), another powerful GitHub service, you might enjoy our related lesson, ["Go big with GitHub Actions."](https://palewi.re/docs/go-big-with-github-actions/deploy.html)

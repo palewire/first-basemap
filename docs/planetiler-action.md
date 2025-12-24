@@ -323,6 +323,12 @@ This is a complex operation that includes technical details that aren't worth di
 
 The `TIMESTAMP` setting is combined with the product name to create a unique `OUTPUT_FILE` setting for each run. This prevents overwriting previous files and makes it easy to track builds over time. However, if you prefer a consistent filename, you could replace this with a fixed path like `planet-${{ inputs.product }}.pmtiles` or another pattern that you prefer.
 
+```{note}
+The OpenStreetMap database, drawn from volunteers and public data sources around the world, is constantly changing. When you run Planetiler, it will generate a new PMTiles file that reflects the most recent data.
+
+If you're going to integrate this workflow into a production system, you should consider keeping your basemap up to date by running this workflow periodically. The filename pattern may need to be adjusted to fit your versioning strategy.
+```
+
 The `--languages=en` flag means that Planetiler will include only English names to reduce file size. You could add more with `--languages=en,es,fr`, if you preferred, or omit the flag entirely to include all available languages.
 
 The `--exclude-layers=housenumber,building,poi` flag for the `base` product removes not just building footprints but also house numbers and the massive database of [points of interest packaged with OpenStreetMap](https://wiki.openstreetmap.org/wiki/Points_of_interest). This helps keep the file size down for a general-purpose basemap. However, if you wanted to style and include points of interest, you should remove `poi` from the exclusion list.

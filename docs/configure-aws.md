@@ -164,7 +164,7 @@ First, the personal access token from GitHub should go in as `GH_PERSONAL_ACCESS
 
 Then you should do the same thing by adding your AWS access key ID as `AWS_ACCESS_KEY_ID` and your AWS secret access key as `AWS_SECRET_ACCESS_KEY`.
 
-Phew. After all that, you're finally ready to run your first Action on EC2.
+After all that, you're finally ready to run your first Action on EC2.
 
 ## Creating a workflow that uses EC2
 
@@ -193,10 +193,6 @@ env:
   EC2_IMAGE_ID: ami-0e86e20dae9224db8   # Ubuntu 24.04 LTS
   EC2_INSTANCE_TYPE: r5d.8xlarge        # 32 vCPUs, 256 GB RAM, 2x600 GB NVMe SSD
   EC2_VOLUME_SIZE: 50                   # Root volume size in GB
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   start-runner:
@@ -292,15 +288,11 @@ env:
 
 You should enter the subnet ID and security group ID that you saved earlier in the `AWS_SUBNET_ID` and `AWS_SECURITY_GROUP_ID` fields.
 
-You'll also see the configuration options for the EC2 server, which I've filled with settings that will work for most Actions. The `EC2_IMAGE_ID` is the unique identifier of the operating system that AWS will install on the server, which is commonly known as the AMI. The `EC2_INSTANCE_TYPE` is the size of the server to start up. You can find the menu of available hardware [on the AWS site](https://aws.amazon.com/ec2/instance-types/). The `EC2_VOLUME_SIZE` is how much disk space you want to allocate to the server, measured in gigabytes. The default I set is 50 GB, which should be sufficient for most tasks. You can change any of these values to suit your needs.
+You'll also see the configuration options for the EC2 server, which I've filled with settings that will work for most Actions.
 
-Then the `concurrency` section ensures that only one instance of this workflow will run at a time. If you try to start a second one while the first is still running, the first will be canceled.
+The `EC2_IMAGE_ID` is the unique identifier of the operating system that AWS will install on the server, which is commonly known as the AMI, which is short for Amazon Machine Image.
 
-```yaml
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-```
+The `EC2_INSTANCE_TYPE` is the size of the server to start up. You can find the menu of available hardware [on the AWS site](https://aws.amazon.com/ec2/instance-types/). The `EC2_VOLUME_SIZE` is how much disk space you want to allocate to the server, measured in gigabytes. The default I set is 50 GB, which should be sufficient for most tasks. You can change any of these values to suit your needs.
 
 After that, the workflow is essentially a three-step process. The first step uses a traditional Actions server to connect with AWS and fire up a new EC2 instance with your specified configuration.
 
@@ -345,7 +337,7 @@ The second step will then be run inside the custom EC2 server, not in one of Git
 
 The `timeout-minutes` line sets how long this job can run before it is automatically terminated. I've set it to 240 minutes, or four hours, but could run the server for as long as you're willing to pay for it, one of the advantages of using your own hardware.
 
-Finally, the `steps` section is where you put in the commands you want to run on your custom server, just as you would in any other Actions workflow. In this case, I've just included a simple "Hello world" command after checking out the repository.
+Finally, the `steps` section is where you put in the commands you want to run on your custom server, as you would in any other Actions workflow. In this case, I've just included a simple "Hello world" command after checking out the repository.
 
 {emphasize-lines="4,5,10-12"}
 ```yaml
