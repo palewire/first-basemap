@@ -142,7 +142,7 @@ First, the job configuration:
     timeout-minutes: 240  # Four hours
 ```
 
-This time the `timeout-minutes` is set to 240 minutes, or four hours, which should be enough time for Planetiler to process the planet file.
+Take note that the `timeout-minutes` is set to 240 minutes, or four hours, which should be enough time for Planetiler to process the planet file.
 
 The first step configures AWS credentials, just like before.
 
