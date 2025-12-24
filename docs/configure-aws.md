@@ -18,35 +18,35 @@ In other circumstances, we've used this technique to:
 * Refine and republish [California's gigantic database](https://github.com/palewire/django-calaccess-downloads-website) of campaign-finance filings
 * Aggregate decades of climate data into global and regional averages
 
-Though, there is bad news here. You will have to pay for it. Jeff Bezos didn't get rich by giving things away.
+There is bad news here. You will have to pay for it. Jeff Bezos didn't get rich by giving things away.
 
 The first step is to create an AWS account, if you don't already have one. Go to [aws.amazon.com](https://aws.amazon.com/) and click the button that says "Create an AWS account" in the upper right corner.
 
-![AWS splash page](_static/aws-splash.png)
+![Screenshot of AWS homepage with Create an AWS account button highlighted in upper right corner](_static/aws-splash.png)
 
 You'll provide a root email address and a name for the account. Then you'll be asked to verify your email. Then you'll enter a password, contact information and a payment method. You'll also have to verify your phone number. Once that's completed, you'll be congratulated for your wherewithal.
 
-![AWS congrats](_static/aws-congrats.png)
+![AWS account creation success screen showing congratulations message](_static/aws-congrats.png)
 
 Now you're ready to sign into the AWS Management Console, where you can access all of the services it offers.
 
-![AWS console](_static/aws-console.png)
+![AWS Management Console dashboard showing available services and search bar](_static/aws-console.png)
 
 Accessing AWS with GitHub Actions requires that you first establish an API key with permission to access the services you want to use. You can do that by clicking on the pulldown menu in the far upper right corner of the console and selecting "Security Credentials."
 
-![Settings pulldown](_static/account-menu.png)
+![AWS console account menu dropdown with Security Credentials option visible](_static/account-menu.png)
 
 Then scroll down to the "Access keys" section and click the button that says "Create access key."
 
-![Keys section](_static/keys-section.png)
+![Security Credentials page with Access keys section and Create access key button](_static/keys-section.png)
 
 Now you can create a root key pair by checking the box and clicking the button that says "Create access key."
 
-![Keys section](_static/keys-consent.png)
+![Access key creation dialog with consent checkbox and Create access key button](_static/keys-consent.png)
 
 The final screen will show you the key's ID and secret. I've redacted my pair in the example below.
 
-![Keys screen](_static/redacted-keys.png)
+![AWS access key success screen showing redacted access key ID and secret access key](_static/redacted-keys.png)
 
 Copy and paste them into a text file for safekeeping. You will not be able to see the secret key again. They are what Actions will use to gain access to AWS from outside the console.
 
@@ -54,69 +54,69 @@ Next we will need to configure your account's networking to allow for EC2 server
 
 Return to the search bar at the top of the AWS console and search for VPC.
 
-![VPC search](_static/search-vpc.png)
+![AWS console search bar with VPC entered and VPC service result displayed](_static/search-vpc.png)
 
 Click on the link that says "VPC" and then click the button that says "Create VPC."
 
-![VPC create](_static/vpc-home.png)
+![VPC dashboard with Create VPC button in top right](_static/vpc-home.png)
 
 Scroll to the bottom of the page, accepting all the default settings, and click the button that says "Create VPC."
 
-![VPC create](_static/vpc-create.png)
+![VPC creation form showing configuration options and Create VPC button at bottom](_static/vpc-create.png)
 
 Wait for the VPC to be created. It will take a few seconds. Once it's done, click the button that says "View VPC."
 
-![VPC create](_static/vpc-finish.png)
+![VPC creation success screen with View VPC button](_static/vpc-finish.png)
 
 On the profile page of the VPC you will see a link to "Subnets" in the left-hand menu. Click on that link.
 
-![VPC subnets](_static/vpc-profile.png)
+![VPC details page with Subnets option highlighted in left sidebar navigation](_static/vpc-profile.png)
 
 This will show a list of your subnets. Find one of the ones with "public" in its name and click on it.
 
-![VPC subnets](_static/subnet-list.png)
+![List of VPC subnets showing multiple public and private subnets](_static/subnet-list.png)
 
 On the subnet profile page, look for an option that says "Auto-assign public IPv4 address." If it is "no," you will need to change it to "yes." Click the button in the upper right that says "Actions" and select "Edit subnet settings."
 
-![VPC subnets](_static/subnet-profile.png)
+![Subnet details page showing Auto-assign public IPv4 address setting and Actions dropdown menu](_static/subnet-profile.png)
 
 Change the setting to "yes" and then scroll down and click the button that says "Save."
 
-![VPC subnets](_static/subnet-enable.png)
+![Subnet settings form with Enable auto-assign public IPv4 address checkbox selected](_static/subnet-enable.png)
 
 You've done it. But before you go, we need to save the subnet identifier for later. You will find it at the top of the profile page. Copy and paste it somewhere safe.
 
-![VPC subnets](_static/subnet-id.png)
+![Subnet details page highlighting the Subnet ID value to copy](_static/subnet-id.png)
 
 Next we will need to ensure that your EC2 servers use this subnet to access GitHub. We do this by setting what is known as a security group.
 
 Return to the top search bar and this time punch in EC2. Select the top result.
 
-![EC2 search](_static/search-ec2.png)
+![AWS console search bar with EC2 entered and EC2 service result displayed](_static/search-ec2.png)
 
 Scroll down the left-hand toolbar and select "Security Groups."
 
-![EC2 search](_static/ec2-home.png)
+![EC2 dashboard with Security Groups option in left sidebar navigation](_static/ec2-home.png)
 
 There will likely already be a security group created for you with the same name as your VPC. Click on its name.
 
-![EC2 search](_static/security-group-list.png)
+![List of security groups showing group names, IDs, and VPC associations](_static/security-group-list.png)
 
 We need to make sure that your servers have "outbound" rights to talk to GitHub. Click on the "Outbound rules" tab.
 
-![EC2 search](_static/security-group-profile.png)
+![Security group details page with tabs showing Inbound rules and Outbound rules](_static/security-group-profile.png)
 
 Then click the button that says "Edit outbound rules."
 
-![EC2 search](_static/outbound-tab.png)
+![Outbound rules tab showing existing rules and Edit outbound rules button](_static/outbound-tab.png)
 
 Now make sure there are rules that allow for "HTTP" traffic on port 80 and "HTTPS" traffic on port 443 to the "Custom" destination of 0.0.0.0/0, which means anywhere. If those rules are not there, click the button that says "Add rule" and put in those options. Then click "Save rules."
 
-![EC2 search](_static/outbound-rules.png)
+![Outbound rules editor showing HTTP and HTTPS rules with destination 0.0.0.0/0 and Save rules button](_static/outbound-rules.png)
 
 Before you go we need to save the security group ID for later. You will find it at the top of the profile page. Copy and paste it to the same place you saved the subnet ID.
 
-![EC2 search](_static/copy-sg.png)
+![Security group details page highlighting the Security group ID value to copy](_static/copy-sg.png)
 
 ## Introducing Amazon S3
 
@@ -132,23 +132,23 @@ Now we need to create a Personal Access Token, or PAT, that will allow GitHub to
 
 You can jump there directly by visiting [github.com/settings/tokens](https://github.com/settings/tokens)
 
-![GitHub settings](_static/tokens-list.png)
+![GitHub Personal access tokens page showing list of existing tokens and Generate new token button](_static/tokens-list.png)
 
 Click on the button that says "Generate new token" and select the "classic" option.
 
-![GitHub settings](_static/tokens-dropdown.png)
+![GitHub Generate new token dropdown menu showing classic and fine-grained token options](_static/tokens-dropdown.png)
 
 Give your token a name and then select the "repo" checkbox, which will provide the necessary permissions. If you want to use this Action for a significant time period, you should extend the expiration date beyond the default of 30 days.
 
-![GitHub settings](_static/tokens-perms.png)
+![GitHub new personal access token form with token name field, expiration dropdown, and repo permission checkbox](_static/tokens-perms.png)
 
 Scroll to the bottom and select "Generate token."
 
-![GitHub settings](_static/tokens-generate.png)
+![Bottom of personal access token form showing Generate token button](_static/tokens-generate.png)
 
 That will print out your token. Copy and paste it into the same text file where you saved your other secrets. You will not be able to see it again. I've redacted mine in the screenshot for security.
 
-![GitHub settings](_static/tokens-copy.png)
+![Personal access token success screen showing redacted token value with copy button](_static/tokens-copy.png)
 
 ## Saving your secrets in GitHub
 
@@ -160,7 +160,7 @@ You'll want to add three variables, one by one, from the text file where you've 
 
 First, the personal access token from GitHub should go in as `GH_PERSONAL_ACCESS_TOKEN`.
 
-![GitHub settings](_static/add-secret.png)
+![GitHub repository secrets page showing New repository secret form with name and value fields](_static/add-secret.png)
 
 Then you should do the same thing by adding your AWS access key ID as `AWS_ACCESS_KEY_ID` and your AWS secret access key as `AWS_SECRET_ACCESS_KEY`.
 
@@ -168,9 +168,9 @@ Phew. After all that, you're finally ready to run your first Action on EC2.
 
 ## Creating a workflow that uses EC2
 
-There are a number of different ways to connect outside servers to Actions. We are going to use a set of shortcuts [packaged up in the Actions marketplace](https://github.com/marketplace/actions/on-demand-self-hosted-aws-ec2-runner-for-github-actions) by Volodymyr Machula.
+There are a number of different ways to connect external servers to Actions. We are going to use a set of shortcuts [packaged up in the Actions marketplace](https://github.com/marketplace/actions/on-demand-self-hosted-aws-ec2-runner-for-github-actions) by Volodymyr Machula.
 
-![GitHub settings](_static/self-hosted-action.png)
+![GitHub Actions marketplace listing for On-demand self-hosted AWS EC2 runner action](_static/self-hosted-action.png)
 
 I've worked through his documentation and created a template for you to start with. It's available in this tutorial's repository as [ec2-custom-runner-example.yaml](https://github.com/palewire/first-basemap/blob/main/.github/workflows/ec2-custom-runner-example.yaml).
 
@@ -399,8 +399,8 @@ The `if` clause is very important. Why? Because if you forget to shut down the s
 It's a good idea to routinely check in on the AWS console to make sure you don't have any orphaned servers running. You can do that by going to the EC2 panel and selecting "Instances" from the left-hand menu. Any leftover servers can be terminated from there.
 ```
 
-You could copy that complete file into your repository's `.github/workflows` directory alongside your other actions. Once you've edited the file to include your configuration options and runner scripts, you can commit it to your repository and call it from the Actions tab like any other workflow. You'll see it execute as a three-step process, just like our YAML config suggests, with the second step happening over on EC2.
+You could copy that complete file into your repository's `.github/workflows` directory alongside your other Actions. Once you've edited the file to include your configuration options and runner scripts, you can commit it to your repository and call it from the Actions tab like any other workflow. You'll see it execute as a three-step process, just like our YAML config suggests, with the second step happening over on EC2.
 
-![GitHub actions](_static/run-custom.png)
+![GitHub Actions workflow run showing three completed jobs: start runner, run, and stop runner](_static/run-custom.png)
 
 And that's it. You now have a custom EC2 runner that can be used to run any command you want on whatever server you want for as long as you want. Next we'll put it to work building map tiles.

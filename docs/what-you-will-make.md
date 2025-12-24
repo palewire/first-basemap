@@ -99,7 +99,7 @@ This class will show you how to make this new style of basemap using open-source
 
 The steps we'll work through were mapped out in the summer of 2025 at [Reuters](https://www.reuters.com/), the world's largest multimedia news provider. The newsroom uses its basemap as the foundation for publishing its data-driven journalism. For instance, Reuters journalist [Casey Miller](https://www.reuters.com/authors/casey-miller/) has used it to create interactive maps that track hurricane activity around the world.
 
-![Reuters hurricane map](_static/reuters-hurricanes.jpg)
+![Interactive Reuters map showing hurricane tracking data overlaid on custom basemap](_static/reuters-hurricanes.jpg)
 
 ```{note}
 The development of the Reuters basemap was led by [Scott Reinhard](https://scottreinhardmaps.com/), who has written a detailed explanation of his design process [on his blog](). While the fonts, styles and other customizations he tailored for Reuters are copyrighted, the underlying techniques are free for anyone to adapt.

@@ -100,7 +100,7 @@ jobs:
               MAX_ZOOM=15
               ;;
             'base')
-              echo "Using a more aggressive simplification profile for a base map layer without buildings"
+              echo "Using a more aggressive simplification profile for a basemap layer without buildings"
               SIMPLIFY_TOLERANCE="0.4"
               SIMPLIFY_TOLERANCE_MAX_ZOOM="0.3"
               MIN_FEATURE_SIZE="1.5"

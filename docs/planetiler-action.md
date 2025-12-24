@@ -6,9 +6,9 @@ To do that, we'll need to take advantage of another open-source tool.
 
 ## What is Planetiler?
 
-[Planetiler](https://github.com/onthegomap/planetiler) is a [Java](https://en.wikipedia.org/wiki/Java_(programming_language)) application that can convert massive amounts of geographic data into the PMTiles file format. It was created by [Michael Barry](https://github.com/msbarry), who designed it to be capable of processing the entire OpenStreetMap planet file in just a few hours.
+[Planetiler](https://github.com/onthegomap/planetiler) is a [Java](https://en.wikipedia.org/wiki/Java_(programming_language)) application that can convert massive amounts of geographic data into the PMTiles file format. It was created by [Michael Barry](https://github.com/msbarry), who designed it to process the entire OpenStreetMap planet file in just a few hours.
 
-![The Planetiler GitHub repo](_static/planetiler.png)
+![Planetiler GitHub repository page showing project description and documentation](_static/planetiler.png)
 
 The tool offers [extensive configuration options](https://github.com/onthegomap/planetiler/blob/main/config-example.properties) that control which map features are included, how they are handled at different zoom levels and other settings. That makes it possible to create different types of maps optimized for different use cases. Some developers use it to create highly customized maps limited to small areas, while others, like us, use it to create general-purpose basemaps of the entire world.
 
@@ -183,7 +183,7 @@ The `base` product includes all zoom levels from 0 to 15, while the `buildings` 
               MAX_ZOOM=15
               ;;
             'base')
-              echo "Using a more aggressive simplification profile for a base map layer without buildings"
+              echo "Using a more aggressive simplification profile for a basemap layer without buildings"
               SIMPLIFY_TOLERANCE="0.4"
               SIMPLIFY_TOLERANCE_MAX_ZOOM="0.3"
               MIN_FEATURE_SIZE="1.5"
@@ -455,12 +455,12 @@ Navigate to your repository's Actions tab. You should see "Build Planetiler" in 
 
 Click on the workflow name, then click "Run workflow" in the upper right. You'll see a dropdown where you can choose which product to build. Click the green "Run workflow" button to start the process and off you go.
 
-![Starting the Planetiler workflow](_static/run-planetiler.png)
+![GitHub Actions Build Planetiler workflow page with Run workflow dropdown showing product selection options](_static/run-planetiler.png)
 
 At the time of this writing, it takes a little more than 90 minutes per product and the entire operation costs less than $10.
 
 When your tasks complete, click into the logs for each workflow's "Generate tiles" job and fish out the public URL from the upload step.
 
-![Completed Planetiler workflow with public URL](_static/planetiler-complete.png)
+![GitHub Actions workflow logs showing completed tile generation with S3 public URL output](_static/planetiler-complete.png)
 
 In the next chapter, we'll learn how to integrate those URLs into an interactive web map using MapLibre GL JS.

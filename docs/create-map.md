@@ -2,7 +2,7 @@
 
 Now that you've generated PMTiles files and uploaded them to S3, it's time to display them on a web page. We'll use [MapLibre GL JS](https://maplibre.org/maplibre-gl-js/docs/), an open-source library for rendering interactive maps in the browser.
 
-[![MapLibre GL JS logo](_static/maplibre.png)](https://maplibre.org/)
+[![MapLibre GL JS project logo](_static/maplibre.png)](https://maplibre.org/)
 
 MapLibre displays maps by combining your basemap's data with a style file that defines how to present labels, colors, lines and the other visual elements that make up a map.
 
@@ -12,7 +12,7 @@ You could write a style from scratch, like we did at Reuters for our custom base
 
 OSM Liberty was created using [Maputnik](https://maputnik.github.io/), a free visual editor for MapLibre styles.
 
-[![Maputnik logo](_static/maputnik.png)](https://maputnik.github.io/)
+[![Maputnik visual style editor logo](_static/maputnik.png)](https://maputnik.github.io/)
 
 You can use Maputnik to customize the look later. For now, you should start by downloading the [default OSM Liberty style](https://raw.githubusercontent.com/maputnik/osm-liberty/gh-pages/style.json), which will we will modify to point to your PMTiles files.
 
@@ -188,11 +188,11 @@ python -m http.server 8000
 
 Then open `http://localhost:8000` in your browser. You should see your basemap rendered as an interactive globe.
 
-![Interactive map displayed in a web browser showing a globe with map tiles](_static/globe.png)
+![Browser window displaying interactive globe map rendered with PMTiles basemap and MapLibre GL JS](_static/globe.png)
 
 Zoom in close enough and you should see 3D buildings popping up in major cities.
 
-![Close-up of 3D buildings on an interactive map displayed in a web browser](_static/central-park.png)
+![Browser map zoomed into urban area showing 3D building extrusions rendered from buildings PMTiles layer](_static/central-park.png)
 
 Congratulations! You've created an interactive map using your PMTiles basemap and MapLibre GL JS. What you do with it from here is up to you. If you're looking for a challenge, try customizing the style using [Maputnik](https://maputnik.github.io/) or adding a data layer on top of your basemap using GeoJSON or another source. You can even add data layers stored as their own PMTiles files.
 
