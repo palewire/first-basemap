@@ -196,8 +196,7 @@ Zoom in close enough and you should see 3D buildings popping up in major cities.
 
 Congratulations! You've created an interactive map using your PMTiles basemap and MapLibre GL JS. What you do with it from here is up to you. If you're looking for a challenge, try customizing the style using [Maputnik](https://maputnik.github.io/) or adding a data layer on top of your basemap using GeoJSON.
 
-You can also start adding other datasets. Here's an example that layers on population density contours from [WorldPop](https://www.worldpop.org/) as a PMTiles file after the data is compiled via [Tippecanoe](https://docs.protomaps.com/pmtiles/create).
-
+You can also start adding other datasets. Here's population density data from [WorldPop](https://www.worldpop.org/) compiled to PMTiles via a tool called [Tippecanoe](https://docs.protomaps.com/pmtiles/create):
 
 ```{raw} html
 <div style="width: 100%; height: 400px; position: relative;">
