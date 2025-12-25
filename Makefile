@@ -14,20 +14,25 @@ RASTER = worldpop_$(COUNTRY)_$(YEAR).tif
 CLASSIFIED_RASTER = worldpop_$(COUNTRY)_$(YEAR)_classified.tif
 POLYGONS = worldpop_$(COUNTRY)_$(YEAR)_polygons.geojson
 POLYGONS_PMTILES = worldpop_$(COUNTRY)_$(YEAR)_polygons.pmtiles
+CONTOUR_POLYGONS = worldpop_$(COUNTRY)_$(YEAR)_contour_polygons.geojson
+CONTOUR_POLYGONS_PMTILES = worldpop_$(COUNTRY)_$(YEAR)_contour_polygons.pmtiles
 
 AWS_PROFILE = faq
 S3_BUCKET = first-basemap
 
-# Default target
-all: $(POLYGONS_PMTILES)
+# Population thresholds for contours
+CONTOUR_LEVELS = 100 500 1000 2500 5000 10000 25000 50000 100000 250000 500000 1000000
+
+# Default target - choose one method
+all: $(CONTOUR_POLYGONS_PMTILES)
 	@echo ""
 	@echo "✓ Done! Your PMTiles file is ready:"
-	@echo "  Polygons: $(POLYGONS_PMTILES)"
+	@echo "  Contour Polygons: $(CONTOUR_POLYGONS_PMTILES)"
 	@echo ""
-	@echo "MapLibre usage (polygons for filled areas):"
+	@echo "MapLibre usage (contour polygons for filled areas):"
 	@echo "  map.addSource('population-polygons', {"
 	@echo "    type: 'vector',"
-	@echo "    url: 'pmtiles://./$(POLYGONS_PMTILES)'"
+	@echo "    url: 'pmtiles://./$(CONTOUR_POLYGONS_PMTILES)'"
 	@echo "  });"
 
 check:
@@ -35,6 +40,7 @@ check:
 	@command -v curl >/dev/null 2>&1 || (echo "ERROR: curl not found" && exit 1)
 	@command -v gdal_calc.py >/dev/null 2>&1 || (echo "ERROR: GDAL Python tools not found" && exit 1)
 	@command -v gdal_polygonize.py >/dev/null 2>&1 || (echo "ERROR: GDAL Python tools not found" && exit 1)
+	@command -v gdal_contour >/dev/null 2>&1 || (echo "ERROR: GDAL not found" && exit 1)
 	@command -v tippecanoe >/dev/null 2>&1 || (echo "ERROR: tippecanoe not found" && exit 1)
 	@command -v aws >/dev/null 2>&1 || (echo "ERROR: aws cli not found" && exit 1)
 	@echo "✓ All dependencies found!"
@@ -48,7 +54,7 @@ $(RASTER):
 	@gdalinfo $@ > /dev/null || (echo "ERROR: Invalid GeoTIFF!" && exit 1)
 	@echo "✓ Download complete"
 
-# Classify raster into discrete bins for polygonization
+# METHOD 1: Classify raster into discrete bins for polygonization
 $(CLASSIFIED_RASTER): $(RASTER)
 	@echo "Classifying population into bins..."
 	@echo "⚠️  This may take several minutes for global data"
@@ -73,7 +79,7 @@ with open(sys.argv[1], 'w') as f:
 endef
 export ADD_POPULATION_SCRIPT
 
-# Convert classified raster to polygons
+# Convert classified raster to polygons (METHOD 1)
 $(POLYGONS): $(CLASSIFIED_RASTER)
 	@echo "Converting raster to polygons..."
 	@echo "⚠️  This will take 10-20 minutes for global data"
@@ -82,37 +88,85 @@ $(POLYGONS): $(CLASSIFIED_RASTER)
 	@python3 -c "$$ADD_POPULATION_SCRIPT" $@
 	@echo "✓ Created $(POLYGONS)"
 
-# Create PMTiles from polygons
+# METHOD 2: Create contour polygons with fixed levels
+$(CONTOUR_POLYGONS): $(RASTER)
+	@echo "Creating contour polygons with thresholds: $(CONTOUR_LEVELS)..."
+	@echo "⚠️  This will take 10-20 minutes for global data"
+	gdal_contour \
+		-amin floor \
+		-amax ceil \
+		-f GeoJSON \
+		-p \
+		-fl $(CONTOUR_LEVELS) \
+		$(RASTER) $@
+	@echo "✓ Created $(CONTOUR_POLYGONS)"
+
+# Create PMTiles from classified polygons (METHOD 1)
 $(POLYGONS_PMTILES): $(POLYGONS)
 	@echo "Creating polygons PMTiles with tippecanoe..."
 	@echo "⚠️  This may take a few minutes"
 	tippecanoe -o $@ \
+		-zg \
+		--drop-densest-as-needed \
+		--coalesce-densest-as-needed \
 		-l population \
-		-Z 0 \
-		-z 2 \
-		--force \
-		--no-feature-limit \
-		--no-tile-size-limit \
-		--no-simplification \
-		--drop-rate=0 \
-		--cluster-distance=0 \
-		--preserve-input-order \
+		--minimum-zoom=0 \
+		--maximum-zoom=2 \
 		-n "WorldPop $(COUNTRY) $(YEAR) Polygons" \
 		-A "Data from WorldPop" \
 		$(POLYGONS)
 	@echo "✓ PMTiles created: $$(du -h $(POLYGONS_PMTILES) | cut -f1)"
 
+# Create PMTiles from contour polygons (METHOD 2)
+$(CONTOUR_POLYGONS_PMTILES): $(CONTOUR_POLYGONS)
+	@echo "Creating contour polygons PMTiles with tippecanoe..."
+	@echo "⚠️  This may take a few minutes"
+	tippecanoe -o $@ \
+		-zg \
+		--drop-densest-as-needed \
+		--coalesce-densest-as-needed \
+		-l population \
+		--minimum-zoom=0 \
+		--maximum-zoom=2 \
+		-n "WorldPop $(COUNTRY) $(YEAR) Contour Polygons" \
+		-A "Data from WorldPop" \
+		$(CONTOUR_POLYGONS)
+	@echo "✓ PMTiles created: $$(du -h $(CONTOUR_POLYGONS_PMTILES) | cut -f1)"
+
+# Build both methods
+both: $(POLYGONS_PMTILES) $(CONTOUR_POLYGONS_PMTILES)
+	@echo "✓ Both PMTiles files created!"
+
 # Upload PMTiles to S3
-upload: $(POLYGONS_PMTILES)
+upload: $(CONTOUR_POLYGONS_PMTILES)
 	@echo "Uploading PMTiles to S3..."
-	aws s3 cp $(POLYGONS_PMTILES) s3://$(S3_BUCKET)/$(POLYGONS_PMTILES) \
+	aws s3 cp $(CONTOUR_POLYGONS_PMTILES) s3://$(S3_BUCKET)/$(CONTOUR_POLYGONS_PMTILES) \
 		--profile $(AWS_PROFILE) \
 		--content-type "application/vnd.pmtiles" \
 		--metadata-directive REPLACE \
 		--cache-control "public, max-age=31536000"
 	@echo ""
 	@echo "✓ Upload complete!"
-	@echo "URL: https://$(S3_BUCKET).s3.amazonaws.com/$(POLYGONS_PMTILES)"
+	@echo "URL: https://$(S3_BUCKET).s3.amazonaws.com/$(CONTOUR_POLYGONS_PMTILES)"
+
+# Upload both files
+upload-both: $(POLYGONS_PMTILES) $(CONTOUR_POLYGONS_PMTILES)
+	@echo "Uploading both PMTiles to S3..."
+	aws s3 cp $(POLYGONS_PMTILES) s3://$(S3_BUCKET)/$(POLYGONS_PMTILES) \
+		--profile $(AWS_PROFILE) \
+		--content-type "application/vnd.pmtiles" \
+		--metadata-directive REPLACE \
+		--cache-control "public, max-age=31536000"
+	aws s3 cp $(CONTOUR_POLYGONS_PMTILES) s3://$(S3_BUCKET)/$(CONTOUR_POLYGONS_PMTILES) \
+		--profile $(AWS_PROFILE) \
+		--content-type "application/vnd.pmtiles" \
+		--metadata-directive REPLACE \
+		--cache-control "public, max-age=31536000"
+	@echo ""
+	@echo "✓ Upload complete!"
+	@echo "URLs:"
+	@echo "  Classified: https://$(S3_BUCKET).s3.amazonaws.com/$(POLYGONS_PMTILES)"
+	@echo "  Contours:   https://$(S3_BUCKET).s3.amazonaws.com/$(CONTOUR_POLYGONS_PMTILES)"
 
 # List files in S3 bucket
 s3-list:
@@ -121,15 +175,15 @@ s3-list:
 
 # Clean intermediate files
 clean:
-	rm -f $(RASTER) $(CLASSIFIED_RASTER) $(POLYGONS)
+	rm -f $(RASTER) $(CLASSIFIED_RASTER) $(POLYGONS) $(CONTOUR_POLYGONS)
 
 # Clean everything including final PMTiles
 distclean: clean
-	rm -f $(POLYGONS_PMTILES)
+	rm -f $(POLYGONS_PMTILES) $(CONTOUR_POLYGONS_PMTILES)
 
 # Serve documentation locally
 serve:
 	@rm -rf docs/_build
 	@cd docs && $(UV) make livehtml
 
-.PHONY: all check upload s3-list clean distclean serve
+.PHONY: all check both upload upload-both s3-list clean distclean serve

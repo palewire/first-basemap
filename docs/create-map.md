@@ -194,6 +194,192 @@ Zoom in close enough and you should see 3D buildings popping up in major cities.
 
 ![Browser map zoomed into urban area showing 3D building extrusions rendered from buildings PMTiles layer](_static/central-park.png)
 
-Congratulations! You've created an interactive map using your PMTiles basemap and MapLibre GL JS. What you do with it from here is up to you. If you're looking for a challenge, try customizing the style using [Maputnik](https://maputnik.github.io/) or adding a data layer on top of your basemap using GeoJSON. You can even add data layers stored as their own PMTiles files.
+Congratulations! You've created an interactive map using your PMTiles basemap and MapLibre GL JS. What you do with it from here is up to you. If you're looking for a challenge, try customizing the style using [Maputnik](https://maputnik.github.io/) or adding a data layer on top of your basemap using GeoJSON.
 
+You can also start adding other datasets. Here's an example that layers on population density contours from [WorldPop](https://www.worldpop.org/) as a PMTiles file after the data is compiled via [Tippecanoe](https://docs.protomaps.com/pmtiles/create).
+
+
+```{raw} html
+<div style="width: 100%; height: 400px; position: relative;">
+    <div id="demo-map" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;"></div>
+</div>
+<script src="https://unpkg.com/maplibre-gl@5.15.0/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/pmtiles@3/dist/pmtiles.js"></script>
+<link href="https://unpkg.com/maplibre-gl@5.15.0/dist/maplibre-gl.css" rel="stylesheet">
+<script>
+    // Register PMTiles protocol with MapLibre
+    let protocol = new pmtiles.Protocol();
+    maplibregl.addProtocol('pmtiles', protocol.tile);
+
+    // Create the map
+    const map = new maplibregl.Map({
+        container: 'demo-map',
+        style: '_static/style.json',
+        center: [-98.5795, 25],
+        zoom: 1.5,
+        minZoom: 1.5,
+        maxZoom: 1.5,
+        attributionControl: false,
+        interactive: false
+    });
+
+   // Globe rotation
+    function createGlobeSpinner(map, degreesPerSecond = 10) {
+        let animationId = null;
+        let lastTime;
+
+        function spin() {
+            const now = performance.now();
+            const elapsed = (now - lastTime) / 1000;
+            lastTime = now;
+
+            const center = map.getCenter();
+            center.lng += degreesPerSecond * elapsed;
+            map.setCenter(center);
+
+            animationId = requestAnimationFrame(spin);
+        }
+
+        return {
+            start() {
+                if (!animationId) {
+                    lastTime = performance.now();
+                    spin();
+                }
+            },
+            stop() {
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+            }
+        };
+    }
+
+    // Start spinning once the map is ready
+    map.on('load', () => {
+        map.setProjection({ type: 'globe' });
+        const spinner = createGlobeSpinner(map);
+        spinner.start();
+
+        map.addSource('population-contours', {
+          type: 'vector',
+          url: 'pmtiles://https://first-basemap.s3.amazonaws.com/worldpop_global_2020_contour_polygons.pmtiles',
+        });
+
+        // Filled polygons with color ramp based on floor value
+        map.addLayer({
+          id: 'population-fill',
+          type: 'fill',
+          source: 'population-contours',
+          'source-layer': 'population',
+          paint: {
+            'fill-color': [
+              'step',
+              ['get', 'floor'],
+              '#fdd49e',    // 100-500: Muted orange (good contrast with gray)
+              500,    '#fdbb84',  // 500-1k
+              1000,   '#fc8d59',  // 1k-2.5k
+              2500,   '#ef6548',  // 2.5k-5k
+              5000,   '#d7301f',  // 5k-10k
+              10000,  '#b30000',  // 10k-25k
+              25000,  '#9e0000',  // 25k-50k
+              50000,  '#7f0000',  // 50k-100k
+              100000, '#650000',  // 100k-250k
+              250000, '#4d0000',  // 250k-500k
+              500000, '#330000'   // 500k-1M+
+            ],
+            'fill-opacity': 0.85
+          }
+        });
+
+        // Raise boundary and label layers above data
+        raiseMapLayers(map, 'population-fill');
+    });
+
+    // Helper function to raise boundary and label layers above data
+    function raiseMapLayers(map, belowLayerId) {
+      const layersToRaise = [
+        // Water labels
+        'water_name_line',
+        'water_name_point',
+
+        // POI labels
+        'poi_z16',
+        'poi_z15',
+        'poi_z14',
+        'poi_transit',
+
+        // Road labels
+        'road_label',
+        'road_shield',
+
+        // Place labels (order matters - smallest to largest)
+        'place_other',
+        'place_village',
+        'place_town',
+        'place_city',
+        'state',
+        'country_3',
+        'country_2',
+        'country_1',
+        'continent'
+      ];
+
+      layersToRaise.forEach(layerId => {
+        if (map.getLayer(layerId)) {
+          map.moveLayer(layerId, belowLayerId);
+        }
+      });
+    }
+</script>
+```
+
+We won't cover all the steps in that process here, but once you have a PMTiles data layer ready, you can add it to your map using the same approach as above: add a new source in the `map.on('load', ...)` function, then add a new layer that references that source.
+
+{emphasize-lines="8-9"}
+```js
+map.on('load', () => {
+  // Here's how you get that nice globe
+  map.setProjection({ type: 'globe' });
+
+  // Add your PMTiles data source as an extra layer on top of the base map
+  map.addSource('your-dataset', {
+    type: 'vector',
+    // Note that we're using the pmtiles:// prefix here again
+    url: 'pmtiles://https://your-bucket.s3.amazonaws.com/your-dataset.pmtiles',
+  });
+
+  // Filled polygons with color ramp based on floor value
+  map.addLayer({
+    id: 'data-layer-fill',
+    type: 'fill',
+    source: 'your-dataset',
+    'source-layer': 'your-data-layer',
+    paint: {
+      // This bit will depend on your data; here's an example color ramp
+      // tailored for population density contours
+      'fill-color': [
+        'step',
+        ['get', 'floor'],
+        '#fdd49e',          // 100-500
+        500,    '#fdbb84',  // 500-1k
+        1000,   '#fc8d59',  // 1k-2.5k
+        2500,   '#ef6548',  // 2.5k-5k
+        5000,   '#d7301f',  // 5k-10k
+        10000,  '#b30000',  // 10k-25k
+        25000,  '#9e0000',  // 25k-50k
+        50000,  '#7f0000',  // 50k-100k
+        100000, '#650000',  // 100k-250k
+        250000, '#4d0000',  // 250k-500k
+        500000, '#330000'   // 500k-1M+
+      ],
+      'fill-opacity': 0.85
+    }
+  });
+});
+```
+
+```{tip}
 If you'd like to learn how to deploy your map to the web using [GitHub Pages](https://docs.github.com/en/pages), another powerful GitHub service, you might enjoy our related lesson, ["Go big with GitHub Actions."](https://palewi.re/docs/go-big-with-github-actions/deploy.html)
+```
