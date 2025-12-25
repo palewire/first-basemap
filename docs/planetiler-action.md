@@ -469,4 +469,8 @@ When your tasks complete, click into the logs for each workflow's "Generate tile
 
 ![GitHub Actions workflow logs showing completed tile generation with S3 public URL output](_static/planetiler-complete.png)
 
+You can proof your files by pasting the URLs into the PMTiles viewer at [pmtiles.io](https://pmtiles.io/). That will allow you to pan and zoom around your freshly minted basemap and inspect the data.
+
+[![PMTiles viewer showing custom basemap tiles generated with Planetiler](_static/pmtiles-viewer.png)](https://pmtiles.io/)
+
 In the next chapter, we'll learn how to integrate those URLs into an interactive web map using MapLibre GL JS.

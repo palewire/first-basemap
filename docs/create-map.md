@@ -267,6 +267,10 @@ You can also start adding other datasets. Here's an example that layers on popul
           url: 'pmtiles://https://first-basemap.s3.amazonaws.com/worldpop_global_2020_contour_polygons.pmtiles',
         });
 
+        // Find the first label layer to insert below, so labels stay on top of data
+        const firstLabelLayer = map.getStyle().layers.find(layer => layer.type === 'symbol')
+
+
         // Filled polygons with color ramp based on floor value
         map.addLayer({
           id: 'population-fill',
@@ -290,52 +294,14 @@ You can also start adding other datasets. Here's an example that layers on popul
               500000, '#330000'   // 500k-1M+
             ],
             'fill-opacity': 0.85
-          }
-        });
-
-        // Raise boundary and label layers above data
-        raiseMapLayers(map, 'population-fill');
+          },
+          // Insert below first label layer to keep labels on top
+        }, firstLabelLayer ? firstLabelLayer.id : undefined);
     });
-
-    // Helper function to raise boundary and label layers above data
-    function raiseMapLayers(map, belowLayerId) {
-      const layersToRaise = [
-        // Water labels
-        'water_name_line',
-        'water_name_point',
-
-        // POI labels
-        'poi_z16',
-        'poi_z15',
-        'poi_z14',
-        'poi_transit',
-
-        // Road labels
-        'road_label',
-        'road_shield',
-
-        // Place labels (order matters - smallest to largest)
-        'place_other',
-        'place_village',
-        'place_town',
-        'place_city',
-        'state',
-        'country_3',
-        'country_2',
-        'country_1',
-        'continent'
-      ];
-
-      layersToRaise.forEach(layerId => {
-        if (map.getLayer(layerId)) {
-          map.moveLayer(layerId, belowLayerId);
-        }
-      });
-    }
 </script>
 ```
 
-We won't cover all the steps in that process here, but once you have a PMTiles data layer ready, you can add it to your map using the same approach as above: add a new source in the `map.on('load', ...)` function, then add a new layer that references that source.
+We won't cover all the steps in that process here, but once you have a PMTiles data layer ready, you can add it to your map using [MapLibre's standard techniques](https://maplibre.org/maplibre-gl-js/docs/examples/add-a-new-layer-below-labels/).
 
 {emphasize-lines="8-9"}
 ```js
@@ -350,7 +316,10 @@ map.on('load', () => {
     url: 'pmtiles://https://your-bucket.s3.amazonaws.com/your-dataset.pmtiles',
   });
 
-  // Filled polygons with color ramp based on floor value
+  // Find the first label layer to insert below, so labels stay on top of data
+  const firstLabelLayer = map.getStyle().layers.find(layer => layer.type === 'symbol')
+
+  // Define how to render your data; here's an example for filled polygons
   map.addLayer({
     id: 'data-layer-fill',
     type: 'fill',
@@ -362,21 +331,22 @@ map.on('load', () => {
       'fill-color': [
         'step',
         ['get', 'floor'],
-        '#fdd49e',          // 100-500
-        500,    '#fdbb84',  // 500-1k
-        1000,   '#fc8d59',  // 1k-2.5k
-        2500,   '#ef6548',  // 2.5k-5k
-        5000,   '#d7301f',  // 5k-10k
-        10000,  '#b30000',  // 10k-25k
-        25000,  '#9e0000',  // 25k-50k
-        50000,  '#7f0000',  // 50k-100k
-        100000, '#650000',  // 100k-250k
-        250000, '#4d0000',  // 250k-500k
-        500000, '#330000'   // 500k-1M+
-      ],
-      'fill-opacity': 0.85
-    }
-  });
+          '#fdd49e',          // 100-500
+          500,    '#fdbb84',  // 500-1k
+          1000,   '#fc8d59',  // 1k-2.5k
+          2500,   '#ef6548',  // 2.5k-5k
+          5000,   '#d7301f',  // 5k-10k
+          10000,  '#b30000',  // 10k-25k
+          25000,  '#9e0000',  // 25k-50k
+          50000,  '#7f0000',  // 50k-100k
+          100000, '#650000',  // 100k-250k
+          250000, '#4d0000',  // 250k-500k
+          500000, '#330000'   // 500k-1M+
+        ],
+        'fill-opacity': 0.85
+      },
+      // Insert below first label layer to keep labels on top
+    }, firstLabelLayer ? firstLabelLayer.id : undefined);
 });
 ```
 
