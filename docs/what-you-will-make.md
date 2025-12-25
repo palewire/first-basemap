@@ -39,11 +39,9 @@ Here's an example of the basemap you will make displayed using the [MapLibre GL]
             const now = performance.now();
             const elapsed = (now - lastTime) / 1000;
             lastTime = now;
-
             const center = map.getCenter();
             center.lng += degreesPerSecond * elapsed;
             map.setCenter(center);
-
             animationId = requestAnimationFrame(spin);
         }
 
