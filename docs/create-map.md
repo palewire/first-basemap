@@ -202,9 +202,6 @@ You can also start adding other datasets. Here's population density data from [W
 <div style="width: 100%; height: 400px; position: relative;">
     <div id="demo-map" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;"></div>
 </div>
-<script src="https://unpkg.com/maplibre-gl@5.15.0/dist/maplibre-gl.js"></script>
-<script src="https://unpkg.com/pmtiles@3/dist/pmtiles.js"></script>
-<link href="https://unpkg.com/maplibre-gl@5.15.0/dist/maplibre-gl.css" rel="stylesheet">
 <script>
     // Register PMTiles protocol with MapLibre
     let protocol = new pmtiles.Protocol();

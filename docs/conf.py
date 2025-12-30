@@ -15,6 +15,21 @@ master_doc = "index"
 html_theme = "palewire"
 pygments_style = "sphinx"
 
+html_css_files = [
+    (
+        "https://unpkg.com/maplibre-gl@5.15.0/dist/maplibre-gl.css",
+        {"crossorigin": "anonymous"},
+    ),
+]
+
+html_js_files = [
+    (
+        "https://unpkg.com/maplibre-gl@5.15.0/dist/maplibre-gl.js",
+        {"crossorigin": "anonymous"},
+    ),
+    ("https://unpkg.com/pmtiles@3/dist/pmtiles.js", {"crossorigin": "anonymous"}),
+]
+
 html_sidebars = {
     "**": [
         "about.html",
