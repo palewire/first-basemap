@@ -90,10 +90,10 @@ The steps we'll work through were mapped out in the summer of 2025 at [Reuters](
 The development of the Reuters basemap was led by [Scott Reinhard](https://scottreinhardmaps.com/), who has written a detailed explanation of his design process [on his blog](). While the fonts, styles and other customizations he tailored for Reuters are copyrighted, the underlying techniques are free for anyone to adapt.
 ```
 
-The chief challenge in creating a basemap is the size of the OpenStreetMap database, which aims to contain every border, road, building and natural feature on the planet. Processing that much data requires powerful computers that can run for hours.
+## What it takes
 
-We'll use [GitHub Actions](https://docs.github.com/en/actions), a cloud-computing service, to schedule and run our tasks. That will be linked with an [Amazon Web Services](https://aws.amazon.com/) account to supply the large servers and static file hosting we need to build and publish the map.
+The chief challenge in creating a basemap is the size of the massive database containing almost every border, road, building and natural feature on the planet. Processing that much data requires powerful computers that can run for hours.
 
-While it will take a lot of different tools to get the job done, none of them are difficult to use. Once you have everything configured, making a new basemap is as simple as pushing a button.
+We've solve this problem by linking [GitHub Actions](https://docs.github.com/en/actions), a cloud-computing service for managing and running tasks, with the powerful servers provided by [Amazon Web Services](https://aws.amazon.com/). It will take a lot of different tools to get the job done, but none of them are difficult to use. Once you have everything sorted out, making a new basemap is as simple as pushing a button.
 
 Ready?
