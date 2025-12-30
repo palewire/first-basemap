@@ -264,6 +264,12 @@ jobs:
           ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
 ```
 
+```{note}
+If you have never seen a file like this before, you could benefit from [“Go big with GitHub Actions,”](https://palewi.re/docs/go-big-with-github-actions/) a previous course focused on the basics of GitHub's automation system.
+
+The key chapters for beginners are [“Introducing Actions,”](https://palewi.re/docs/go-big-with-github-actions/what-are-actions.html) [“Introducing YAML”](https://palewi.re/docs/go-big-with-github-actions/what-is-yaml.html) and [“Creating your first Action.“](https://palewi.re/docs/go-big-with-github-actions/getting-started.html). If you read them, you'll have an easier time understanding this chapter.
+```
+
 At the top we include the name and `workflow_dispatch` trigger, just like our first Action. After that you'll see something new: the `env` section. That is where we define environment variables that will be used throughout the workflow.
 
 {emphasize-lines="6-16"}
