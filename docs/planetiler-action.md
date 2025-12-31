@@ -6,7 +6,7 @@ To do that, we'll need to take advantage of another open-source tool.
 
 ## What is Planetiler?
 
-[Planetiler](https://github.com/onthegomap/planetiler) is a [Java](https://en.wikipedia.org/wiki/Java_(programming_language)) application that can convert massive amounts of geographic data into the PMTiles file format. It was created by [Michael Barry](https://github.com/msbarry), who designed it to process the entire OpenStreetMap planet file in just a few hours.
+[Planetiler](https://github.com/onthegomap/planetiler) is a [Java](https://en.wikipedia.org/wiki/Java_(programming_language)) application that can convert massive amounts of geographic data into the PMTiles file format. It was created by [Michael Barry](https://github.com/msbarry), who designed it to process the entire OpenStreetMap planet file in just a few hours. It also includes data from [Wikidata](https://www.wikidata.org/) and [Natural Earth](https://www.naturalearthdata.com/), which help fill in gaps.
 
 ![Planetiler GitHub repository page showing project description and documentation](_static/planetiler.png)
 

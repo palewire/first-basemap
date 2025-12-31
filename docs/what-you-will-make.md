@@ -84,7 +84,8 @@ The steps we'll work through were mapped out in the summer of 2025 at [Reuters](
 ![Interactive Reuters map showing hurricane tracking data overlaid on custom basemap](_static/reuters-hurricanes.jpg)
 
 ```{note}
-The development of the Reuters basemap was led by [Scott Reinhard](https://scottreinhardmaps.com/), who has written a detailed explanation of his design process [on his blog](). While the fonts, styles and other customizations he tailored for Reuters are copyrighted, the underlying techniques are free for anyone to adapt.
+The development of the Reuters basemap was led by [Scott Reinhard](https://scottreinhardmaps.com/pages/custom-map-projects), who has written a detailed explanation of his design process [on his blog](https://scottreinhardmaps.com/blogs/custom-mapping-projects/custom-reuters-open-source-mapping
+). While the fonts, styles and other customizations he tailored for Reuters are copyrighted, the underlying techniques are free for anyone to adapt.
 ```
 
 ## What it takes
