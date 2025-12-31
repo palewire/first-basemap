@@ -120,11 +120,17 @@ Before you go we need to save the security group ID for later. You will find it 
 
 ## Introducing Amazon S3
 
+![Amazon S3 homepage](_static/s3.png)
+
 Amazon's [Simple Storage Service](https://en.wikipedia.org/wiki/Amazon_S3), commonly called S3, is AWS's file hosting service. Think of it as a hard drive in the cloud where you can store and serve files over the web. Unlike EC2, which provides computing power, S3 simply stores files and makes them accessible via URLs.
 
 We'll use S3 to host our finished PMTiles files. Once uploaded, they'll be publicly accessible and can be loaded directly into web maps without any server infrastructure.
 
 You don't need to do anything special to set up S3 for this tutorial. The Action we'll use later will create a storage bucket automatically. But if you want to explore S3 on your own, you can find it by searching for "S3" in the AWS console bar.
+
+```{note}
+The ultimate cost to host files on S3 will depend on how much traffic your map generates. You can accelerate your tiles and reduce your costs by using a content-delivery network, or CDN, such as [Cloudflare](https://www.cloudflare.com/). For more information on hosting PMTiles files, see the the project's [cost calculator](https://docs.protomaps.com/deploy/cost) and [deployment guide](https://docs.protomaps.com/deploy/hosting).
+```
 
 ## Creating a Personal Access Token
 
