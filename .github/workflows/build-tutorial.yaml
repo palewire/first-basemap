@@ -39,7 +39,7 @@ jobs:
 
       - id: upload-release-candidate
         name: Upload release candidate
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: release-candidate
           path: ./_build/html/
@@ -51,14 +51,14 @@ jobs:
     if: ${{ github.ref_name == 'main' }}
     steps:
       - name: Download release candidate
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: release-candidate
           path: ./docs/
 
       - id: configure-aws
         name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}
