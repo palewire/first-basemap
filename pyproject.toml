@@ -11,7 +11,7 @@ dependencies = [
     "sphinx",
     "sphinx-autobuild",
     "myst-parser",
-    "sphinx-palewire-theme",
+    "sphinx-palewire-theme==0.1.3",
     "warn-scraper",
     "pre-commit",
 ]
