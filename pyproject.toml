@@ -1,20 +1,30 @@
 [build-system]
-requires = ["setuptools >= 61.0",]
+requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "first-basemap"
-description = "Create a fast and free interactive map of the whole world using the OpenStreetMap database and the PMTiles file format"
 version = "1.0.0"
-requires-python = "==3.12.*"
+description = "Create a shockingly fast and virtually free interactive map of the world using OpenStreetMap and PMTiles"
+readme = "README.md"
+requires-python = "==3.13.*"
+license = "MIT"
 dependencies = [
+    "warn-scraper",
     "sphinx",
     "sphinx-autobuild",
     "myst-parser",
     "sphinx-palewire-theme",
-    "warn-scraper",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+]
+
+[dependency-groups]
+dev = [
     "pre-commit",
 ]
 
 [tool.setuptools]
-packages = ["docs",]
+packages = []
