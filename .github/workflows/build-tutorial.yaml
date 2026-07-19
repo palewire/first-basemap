@@ -4,6 +4,11 @@ on:
   push:
   workflow_dispatch:
 
+  pull_request:
+
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -15,13 +20,13 @@ jobs:
     steps:
       - id: checkout
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - id: install-uv
         name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v8
         with:
-          version: "latest"
+          version: "0.11.29"
           enable-cache: true
           cache-dependency-glob: '**/pyproject.toml'
 
@@ -31,7 +36,7 @@ jobs:
 
       - id: install-python-dependencies
         name: Install Python dependencies
-        run: uv sync
+        run: uv sync --locked
 
       - id: build-sphinx-documentation
         name: Build Sphinx documentation
@@ -39,7 +44,7 @@ jobs:
 
       - id: upload-release-candidate
         name: Upload release candidate
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: release-candidate
           path: ./_build/html/
@@ -51,14 +56,14 @@ jobs:
     if: ${{ github.ref_name == 'main' }}
     steps:
       - name: Download release candidate
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: release-candidate
           path: ./docs/
 
       - id: configure-aws
         name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}
