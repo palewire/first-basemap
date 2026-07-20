@@ -93,6 +93,6 @@ The development of the Reuters basemap was led by [Scott Reinhard](https://scott
 
 The chief challenge in creating a basemap is the size of the massive database containing almost every border, road, building and natural feature on the planet. Processing that much data requires powerful computers that can run for hours.
 
-We've solve this problem by linking [GitHub Actions](https://docs.github.com/en/actions), a cloud-computing service for managing and running tasks, with the powerful servers provided by [Amazon Web Services](https://aws.amazon.com/). It will take a lot of different tools to get the job done, but none of them are difficult to use. Once you have everything sorted out, making a new basemap is as simple as pushing a button.
+We've solved this problem by linking [GitHub Actions](https://docs.github.com/en/actions), a cloud-computing service for managing and running tasks, with the powerful servers provided by [Amazon Web Services](https://aws.amazon.com/). It will take a lot of different tools to get the job done, but none of them are difficult to use. Once you have everything sorted out, making a new basemap is as simple as pushing a button.
 
 Ready?

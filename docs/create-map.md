@@ -14,7 +14,7 @@ OSM Liberty was created using [Maputnik](https://maputnik.github.io/), a free vi
 
 [![Maputnik visual style editor logo](_static/maputnik.png)](https://maputnik.github.io/)
 
-You can use Maputnik to customize the look later. For now, you should start by downloading the [default OSM Liberty style](https://raw.githubusercontent.com/maputnik/osm-liberty/gh-pages/style.json), which will we will modify to point to your PMTiles files.
+You can use Maputnik to customize the look later. For now, you should start by downloading the [default OSM Liberty style](https://raw.githubusercontent.com/maputnik/osm-liberty/gh-pages/style.json), which we will modify to point to your PMTiles files.
 
 You can find it at:
 

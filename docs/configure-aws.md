@@ -8,7 +8,7 @@ When you need more horsepower, one solution is to link Actions up with more powe
 
 ## Introducing Amazon Web Services
 
-[Amazon Web Services](https://en.wikipedia.org/wiki/Amazon_Web_Services) is a cloud platform, commonly referred to as AWS, that offers almost every form of computing power for lease. It includes a service known as [Elastic Compute Cloud](https://en.wikipedia.org/wiki/Amazon_Elastic_Compute_Cloud), or EC2, which spins up servers of all shapes and sizes. You can use to run jobs that exceed the limits of GitHub's resources.
+[Amazon Web Services](https://en.wikipedia.org/wiki/Amazon_Web_Services) is a cloud platform, commonly referred to as AWS, that offers almost every form of computing power for lease. It includes a service known as [Elastic Compute Cloud](https://en.wikipedia.org/wiki/Amazon_Elastic_Compute_Cloud), or EC2, which spins up servers of all shapes and sizes. You can use it to run jobs that exceed the limits of GitHub's resources.
 
 It's a great combination. You get the nearly limitless capacity of AWS without losing the convenience of the GitHub Actions interface.
 
