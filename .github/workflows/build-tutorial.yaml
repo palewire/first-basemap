@@ -4,6 +4,11 @@ on:
   push:
   workflow_dispatch:
 
+  pull_request:
+
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -15,13 +20,13 @@ jobs:
     steps:
       - id: checkout
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - id: install-uv
         name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v8.3.2
         with:
-          version: "latest"
+          version: "0.11.29"
           enable-cache: true
           cache-dependency-glob: '**/pyproject.toml'
 
@@ -31,7 +36,7 @@ jobs:
 
       - id: install-python-dependencies
         name: Install Python dependencies
-        run: uv sync
+        run: uv sync --locked
 
       - id: build-sphinx-documentation
         name: Build Sphinx documentation
