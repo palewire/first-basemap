@@ -55,6 +55,19 @@ wheels = [
 ]
 
 [[package]]
+name = "bln"
+version = "2.3.18"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "retry2" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/68/bd/d87829be16e665905f04f9dad4cde632ca816e08c348a72953a0473e9c0e/bln-2.3.18.tar.gz", hash = "sha256:d1b69e09025bfacc29b23cacb5f583c7776f542cdaea341dc80870827d738075", size = 2291768, upload-time = "2026-04-02T21:31:10.18Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e4/59/e6fca5a0c2b46b8da114db1afe46921ade54b6078f874846360e680b5ab0/bln-2.3.18-py3-none-any.whl", hash = "sha256:2555f09426cb21c9a2f63048fb6cf148c7098c9f6eb65adaee78210f1459f3ba", size = 14008, upload-time = "2026-04-02T21:31:09.233Z" },
+]
+
+[[package]]
 name = "certifi"
 version = "2025.11.12"
 source = { registry = "https://pypi.org/simple" }
@@ -940,10 +953,11 @@ wheels = [
 
 [[package]]
 name = "warn-scraper"
-version = "1.2.126"
+version = "1.2.143"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beautifulsoup4" },
+    { name = "bln" },
     { name = "click" },
     { name = "html5lib" },
     { name = "openpyxl" },
@@ -958,9 +972,9 @@ dependencies = [
     { name = "xlrd" },
     { name = "xvfbwrapper" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f9/65/21def471e927eb7b51713798b91d15713dac7f70a6e8b4090758f8c7d564/warn_scraper-1.2.126.tar.gz", hash = "sha256:d9a3c1e188c792822fb7a4d4785a715cda5e769d6660a9d45921076eb81cf85d", size = 3297517, upload-time = "2025-12-01T15:41:43.52Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8b/5d/d418baa00996e034b3fa699f9dfbc7b992ed3a4d9ca54f2d4fdd77b6ec94/warn_scraper-1.2.143.tar.gz", hash = "sha256:436cf39f2450c0562e079fd630ff5ac6f4d842fc8bba897355b8bd0b614f461e", size = 3301307, upload-time = "2026-03-07T01:37:52.813Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ae/33/821fc810fe65bdd5e911cba060434a3ec514fb8d0edc45ac41dfc3347038/warn_scraper-1.2.126-py3-none-any.whl", hash = "sha256:a880f5c54e73b727f1151725e7c4ad94b0e741b3a8f556ce82b3fe51b40b9eb6", size = 185445, upload-time = "2025-12-01T15:41:42.013Z" },
+    { url = "https://files.pythonhosted.org/packages/05/f3/6ef6b357652199d8f4df279d61d68f6d8fcb5132c102c56b8c9428508116/warn_scraper-1.2.143-py3-none-any.whl", hash = "sha256:69b935f02f06b0af93c9bf7199d06d004ada38bec74eb1eec88130a32ee1d39c", size = 95784, upload-time = "2026-03-07T01:37:51.64Z" },
 ]
 
 [[package]]
